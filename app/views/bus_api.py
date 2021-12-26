@@ -98,14 +98,14 @@ def station_arrival():
                 "busName": d.name,
                 "busId": d.id,
                 "busType": d.bus_type,
-                "detour": d.detour,
+                "vehicleType": d.vehicle_type1,
                 "prevStation": d.prev_count1,
                 "arrivalTime": d.time1
             }, {
                 "busName": d.name,
                 "busId": d.id,
                 "busType": d.bus_type,
-                "detour": d.detour,
+                "vehicleType": d.vehicle_type2,
                 "prevStation": d.prev_count2,
                 "arrivalTime": d.time2
             }]
@@ -122,7 +122,7 @@ def station_arrival():
                 "busName": d.name,
                 "busId": d.id,
                 "busType": d.bus_type,
-                "detour": True if d.vehicle_type == "저상버스" else False,
+                "vehicleType": True if d.vehicle_type == "저상버스" else False,
                 "prevStation": d.prev_count,
                 "arrivalTime": d.time
             })

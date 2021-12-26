@@ -6,7 +6,7 @@ from ..utils import get_list_from_ordered_dict
 
 class SeoulBIS(BaseClient):
     def __init__(self, token: str):
-        super().__init__("http://ws.bus.go.kr")
+        super().__init__("http://apis.data.go.kr/")
         self.token = token
 
     def request(self, **kwargs):
@@ -17,36 +17,36 @@ class SeoulBIS(BaseClient):
 
     def get_station(self, name: str):
         data = self.get(
-            path="/api/rest/stationinfo/getStationByName",
+            path="/6410000/busstationservice/getBusStationList",
             params={
-                "stSrch": name
+                "keyword": name
             }
         )
-        result = data['ServiceResult']
+        result = data['response']
 
         # HEAD AND BODY
         head = result['msgHeader']
-        body = result['msgBody']
-        if body is None:
+        if 'msgBody' not in result:
             raise EmptyData()
+        body = result['msgBody']
 
-        item_list = body['itemList']
-        return [BusStation.from_seoul(x) for x in get_list_from_ordered_dict(item_list)]
+        item_list = body['busStationList']
+        return [BusStation.from_gyeonggi(x) for x in get_list_from_ordered_dict(item_list)]
 
-    def get_arrival(self, station_id: int):
+    def get_route(self, station_id: str):
         data = self.get(
-            path="/api/rest/stationinfo/getStationByUid",
+            path="/6410000/busstationservice/getBusStationViaRouteList",
             params={
-                "arsId": station_id
+                "stationId": station_id
             }
         )
-        result = data['ServiceResult']
+        result = data['response']
 
         # HEAD AND BODY
         head = result['msgHeader']
-        body = result['msgBody']
-        if body is None:
+        if 'msgBody' not in result:
             raise EmptyData()
+        body = result['msgBody']
 
-        item_list = body['itemList']
-        return [SeoulBusArrival(x) for x in get_list_from_ordered_dict(item_list)]
+        item_list = body['busRouteList']
+        return [BusRoute.from_gyeonggi(x) for x in get_list_from_ordered_dict(item_list)]

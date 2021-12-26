@@ -1,4 +1,5 @@
 import re
+from typing import Union, Literal
 
 
 class CityList:
@@ -13,12 +14,14 @@ class CityList:
 class BusStation:
     def __init__(
             self,
-            station_id1: str,
+            station_id1: Union[str, int],
             name: str,
             st_type: str,
             station_id2: int,
             pos_x: float = None,
-            pos_y: float = None
+            pos_y: float = None,
+            center: bool = None,
+            region: str = None
     ):
         self.name = name
         self.id1 = self.id = station_id1
@@ -26,6 +29,8 @@ class BusStation:
         self.pos_x = pos_x
         self.pos_y = pos_y
         self.type = st_type
+        self.center = center
+        self._region = region
 
     @classmethod
     def from_korea(cls, payload: dict):
@@ -61,6 +66,25 @@ class BusStation:
             st_type="SEOUL"
         )
 
+    @classmethod
+    def from_gyeonggi(cls, payload: dict):
+        pos_x = payload.get('x')
+        pos_y = payload.get('y')
+        if pos_x is not None:
+            pos_x = float(pos_x)
+        if pos_y is not None:
+            pos_y = float(pos_y)
+        return cls(
+            name=payload['stationName'],
+            station_id1=int(payload['stationId']),
+            station_id2=int(payload['mobileNo']),
+            pos_x=pos_x,
+            pos_y=pos_y,
+            st_type="GYEONGGI",
+            center=(True if payload.get('centerYn', 'N') == 'Y' else False),
+            region=payload.get('regionName')
+        )
+
     def to_data(self) -> dict:
         final_id = self.id1
         if self.type == "SEOUL":
@@ -73,6 +97,38 @@ class BusStation:
             "posX": self.pos_x,
             "posY": self.pos_y,
         }
+
+
+class BusRoute:
+    def __init__(
+            self,
+            bus_id: int,
+            bus_name: str,
+            bus_type: int,
+            bus_type_name: str = None,
+            region: str = None,
+            district: str = None,
+            order: int = None
+    ):
+        self.id = bus_id
+        self.name = bus_name
+        self.type = bus_type
+        self.type_name = bus_type_name
+        self.region = region
+        self.district = district
+        self.order = order
+
+    @classmethod
+    def from_gyeonggi(cls, payload: dict):
+        return cls(
+            bus_id=payload['routeId'],
+            bus_name=payload['routeName'],
+            bus_type=payload['routeTypeCd'],
+            bus_type_name=payload['routeTypeName'],
+            district=payload['districtCd'],
+            region=payload['regionName'],
+            order=int(payload['staOrder'])
+        )
 
 
 class KoreaBusArrival:
@@ -149,7 +205,7 @@ class SeoulBusArrival:
 
     @property
     def prev_count1(self):
-        regex = re.compile('\[\d번째 전\]')
+        regex = re.compile('\[\d번째 전]')
         result = regex.findall(self.msg1)
         if len(result) > 0:
             return result[0].lstrip('[').rstrip('번째 전]')
@@ -157,8 +213,27 @@ class SeoulBusArrival:
 
     @property
     def prev_count2(self):
-        regex = re.compile('\[\d번째 전\]')
+        regex = re.compile('\[\d번째 전]')
         result = regex.findall(self.msg2)
         if len(result) > 0:
             return result[0].lstrip('[').rstrip('번째 전]')
         return 0
+
+
+class GyeonggiBusArrival:
+    def __init__(self, payload: dict):
+        self.flag: Literal['RUN', 'PASS', 'STOP', 'WAIT'] = payload['flag']
+        self.bus_id = payload['routeId']
+        self.station_id = payload['stationId']
+
+        self.prev_count1 = payload['locationNo1']
+        self.time1 = payload['predictTime1']
+        self.vehicle_type1 = payload['lowPlate1']
+        self.car_number1 = payload['plateNo1']
+        self.seat1: int = int(payload['remainSeatCnt1'])
+        self.prev_count2 = payload['locationNo2']
+        self.time2 = payload['predictTime2']
+        self.vehicle_type2 = payload['lowPlate2']
+        self.car_number2 = payload['plateNo2']
+        self.seat2: int = int(payload['remainSeatCnt2'])
+        self.order = payload["staOrder"]
