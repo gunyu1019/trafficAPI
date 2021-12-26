@@ -20,13 +20,17 @@ class Token(NamedTuple):
     korea_bis: str
     korea_arrival: str
     seoul_bis: str
+    gyeonggi_bis: str
+    gyeonggi_arrival: str
 
 
 parser = get_config()
 token = Token(
     korea_bis=parser.get("token", "KoreaBIS"),
     korea_arrival=parser.get("token", "KoreaArrival"),
-    seoul_bis=parser.get("token", "SeoulBIS")
+    seoul_bis=parser.get("token", "SeoulBIS"),
+    gyeonggi_bis=parser.get("token", "GyeonggiBIS"),
+    gyeonggi_arrival=parser.get("token", "GyeonggiArrival")
 )
 
 
@@ -56,6 +60,9 @@ def station_info():
 
     if city_id == "1":
         client = bus_api.SeoulBIS(token=token.seoul_bis)
+        result = client.get_station(name=name)
+    elif city_id == "2":
+        client = bus_api.GyeonggiBIS(token=token.seoul_bis)
         result = client.get_station(name=name)
     else:
         client = bus_api.KoreaBIS(token=token.korea_bis)

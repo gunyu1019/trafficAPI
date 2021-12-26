@@ -6,7 +6,7 @@ from ..utils import get_list_from_ordered_dict
 
 class GyeonggiArrival(BaseClient):
     def __init__(self, token: str):
-        super().__init__("http://apis.data.go.kr/")
+        super().__init__("http://apis.data.go.kr")
         self.token = token
 
     def request(self, **kwargs):

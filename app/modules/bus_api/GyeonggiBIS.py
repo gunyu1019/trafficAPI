@@ -4,16 +4,16 @@ from .errors import *
 from ..utils import get_list_from_ordered_dict
 
 
-class SeoulBIS(BaseClient):
+class GyeonggiBIS(BaseClient):
     def __init__(self, token: str):
-        super().__init__("http://apis.data.go.kr/")
+        super().__init__("http://apis.data.go.kr")
         self.token = token
 
     def request(self, **kwargs):
         params = {
             'serviceKey': self.token
         }
-        return super(SeoulBIS, self).request(_default_params=params, _default_xml=True, **kwargs)
+        return super(GyeonggiBIS, self).request(_default_params=params, _default_xml=True, **kwargs)
 
     def get_station(self, name: str):
         data = self.get(

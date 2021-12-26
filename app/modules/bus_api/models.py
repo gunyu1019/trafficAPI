@@ -231,6 +231,7 @@ class GyeonggiBusArrival:
         self.vehicle_type1 = payload['lowPlate1']
         self.car_number1 = payload['plateNo1']
         self.seat1: int = int(payload['remainSeatCnt1'])
+
         self.prev_count2 = payload['locationNo2']
         self.time2 = payload['predictTime2']
         self.vehicle_type2 = payload['lowPlate2']
