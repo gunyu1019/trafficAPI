@@ -127,3 +127,14 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# IDE configuration
+.idea/
+
+# HTTPs Authorize (For Debugging) File
+fullchain.pem
+cert.pem
+privkey.pem
+
+# Config File
+app/config/config.ini
