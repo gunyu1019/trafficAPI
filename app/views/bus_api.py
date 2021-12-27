@@ -155,17 +155,23 @@ def station_info():
     name = args['name']
     city_id = args['cityId']
 
-    if city_id == "1":
+    if city_id == "11":
         client = bus_api.SeoulBIS(token=token.seoul_bis)
         result = client.get_station(name=name)
-    elif city_id == "2":
+        default_display_id = True
+    elif city_id == "12" or city_id == "1":
         client = bus_api.GyeonggiBIS(token=token.seoul_bis)
         result = client.get_station(name=name)
+        if city_id == "1":
+            default_display_id = True
+        else:
+            default_display_id = False
     else:
         client = bus_api.KoreaBIS(token=token.korea_bis)
         result = client.get_station(city_code=city_id, name=name)
+        default_display_id = False
     return jsonify([
-        x.to_data() for x in result
+        x.to_data(default_display_id) for x in result
     ])
 
 
@@ -192,7 +198,6 @@ def station_arrival():
         )
     station_id = args['id']
     city_id = args['cityId']
-    convert_data = bool(args.get('convert', True))
 
     convert_client = ArrivalData(token)
     if city_id == "1":
@@ -200,52 +205,35 @@ def station_arrival():
         data = client.get_arrival(station_id=station_id)
         bus_data = convert_client.seoul_data(data=data)
 
-        if convert_data:
-            inject_data = {"GBUS": False}
-            for bus in bus_data.values():
-                if bus['busType'] == "8":
-                    inject_data["GBUS"] = True
-                elif bus['busType'] == "7":
-                    # Incheon Bus Injection
-                    pass
+        inject_data = {"GBUS": False}
+        delete_key = []
+        for bus in bus_data.values():
+            if bus['busType'] == "8":
+                inject_data["GBUS"] = True
+                delete_key.append(bus['busName'])
+            elif bus['busType'] == "7":
+                # Incheon Bus Injection
+                pass
+        for key in delete_key:
+            bus_data.pop(key)
 
-            addition_data = {}
-            addition_bus_data = {}
-            addition_bus_route = {}
-            if inject_data["GBUS"]:
-                addition_client1 = bus_api.GyeonggiArrival(token=token.gyeonggi_arrival)
-                addition_client2 = bus_api.GyeonggiBIS(token=token.gyeonggi_bis)
-                _bus_route = addition_client2.get_route(station_id=data[0].station.id1)
-                addition_bus_route["GBUS"] = {}
-                for br in _bus_route:
-                    addition_bus_route["GBUS"][br.name] = br
+        addition_data = {}
+        addition_bus_data = {}
+        if inject_data["GBUS"]:
+            addition_client1 = bus_api.GyeonggiArrival(token=token.gyeonggi_arrival)
+            addition_client2 = bus_api.GyeonggiBIS(token=token.gyeonggi_bis)
+            _bus_route = addition_client2.get_route(station_id=data[0].station.id1)
+            print(data[0].station.id1)
+            addition_data["GBUS"] = addition_client1.get_arrival(station_id=data[0].station.id1)
+            addition_bus_data["GBUS"] = convert_client.gyeonggi_data(data=addition_data["GBUS"], bus_route=_bus_route)
 
-                addition_data["GBUS"] = addition_client1.get_arrival(station_id=data[0].station.id1)
-                addition_bus_data["GBUS"] = convert_client.gyeonggi_data(data=addition_data["GBUS"], bus_route=_bus_route)
-
-                for x in addition_bus_data["GBUS"].values():
-                    key = None
-                    for y in bus_data.values():
-                        if y['busType'] != "8":
-                            continue
-                        location = addition_bus_route["GBUS"][x["busName"]].region
-                        if str(y['busName']) == str(x["busName"]) + location:
-                            key = y['busName']
-                            break
-                    else:
-                        for y in bus_data.values():
-                            if y['busType'] != "8":
-                                continue
-                            if str(y['busName']).startswith(str(x["busName"])):
-                                key = y['busName']
-                                break
-
-                    if key is not None:
-                        bus_data.pop(key)
-                    bus_data[x["busName"]] = x
-
-
-    elif city_id == "2":
+            for x in addition_bus_data["GBUS"].values():
+                bus_data[x["busName"]] = x
+    elif city_id == "11":
+        client = bus_api.SeoulBIS(token=token.seoul_bis)
+        data = client.get_arrival(station_id=station_id)
+        bus_data = convert_client.seoul_data(data=data)
+    elif city_id == "12":
         client1 = bus_api.GyeonggiArrival(token=token.gyeonggi_arrival)
         client2 = bus_api.GyeonggiBIS(token=token.gyeonggi_bis)
         bus_route = client2.get_route(station_id=station_id)

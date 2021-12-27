@@ -86,10 +86,13 @@ class BusStation:
             region=payload.get('regionName')
         )
 
-    def to_data(self) -> dict:
-        final_id = self.id1
-        if self.type == "SEOUL":
+    def to_data(
+            self, base_id: str = "stationId"
+    ) -> dict:
+        if base_id == "displayId":
             final_id = self.id2
+        else:  # stationId
+            final_id = self.id1
         return {
             "name": self.name,
             "id": final_id,
