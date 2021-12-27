@@ -1,5 +1,6 @@
 import re
 from typing import Union, Literal
+from app.modules.utils import get_int
 
 
 class CityList:
@@ -136,10 +137,10 @@ class KoreaBusArrival:
         self.station_name = payload['nodenm']
         self.station_id = payload['nodeid']
 
-        self.time = payload.get('arrtime')
+        self.time = get_int(payload.get('arrtime'))
         self.name = payload.get('routeno')
         self.id = payload.get('routeid')
-        self.prev_count = payload.get('arrprevstationcnt')
+        self.prev_count = get_int(payload.get('arrprevstationcnt'))
         self.bus_type = payload.get('routetp')
         self.vehicle_type = payload.get('vehicletp')
 
@@ -174,8 +175,8 @@ class SeoulBusArrival:
         self.msg1_detail = payload['arrmsgSec1']
         self.msg2_detail = payload['arrmsgSec2']
 
-        self.time1 = payload.get('traTime1')
-        self.time2 = payload.get('traTime2')
+        self.time1 = get_int(payload.get('traTime1'))
+        self.time2 = get_int(payload.get('traTime2'))
         self.vehicle_id1 = payload.get('vehId1')
         self.vehicle_id2 = payload.get('vehId2')
         self.name = payload.get('rtNm')
@@ -208,7 +209,7 @@ class SeoulBusArrival:
         regex = re.compile('\[\d번째 전]')
         result = regex.findall(self.msg1)
         if len(result) > 0:
-            return result[0].lstrip('[').rstrip('번째 전]')
+            return get_int(result[0].lstrip('[').rstrip('번째 전]'))
         return 0
 
     @property
@@ -216,7 +217,7 @@ class SeoulBusArrival:
         regex = re.compile('\[\d번째 전]')
         result = regex.findall(self.msg2)
         if len(result) > 0:
-            return result[0].lstrip('[').rstrip('번째 전]')
+            return get_int(result[0].lstrip('[').rstrip('번째 전]'))
         return 0
 
 
@@ -226,15 +227,16 @@ class GyeonggiBusArrival:
         self.bus_id = payload['routeId']
         self.station_id = payload['stationId']
 
-        self.prev_count1 = payload['locationNo1']
-        self.time1 = payload['predictTime1']
+        self.prev_count1 = get_int(payload['locationNo1'])
+        self.time1 = get_int(payload['predictTime1'])
         self.vehicle_type1 = payload['lowPlate1']
         self.car_number1 = payload['plateNo1']
-        self.seat1: int = int(payload['remainSeatCnt1'])
+        self.seat1: int = get_int(payload['remainSeatCnt1'])
 
-        self.prev_count2 = payload['locationNo2']
-        self.time2 = payload['predictTime2']
+        self.prev_count2 = get_int(payload['locationNo2'])
+        self.time2 = get_int(payload['predictTime2'])
         self.vehicle_type2 = payload['lowPlate2']
         self.car_number2 = payload['plateNo2']
-        self.seat2: int = int(payload['remainSeatCnt2'])
+        self.seat2: int = get_int(payload['remainSeatCnt2'])
         self.order = payload["staOrder"]
+
