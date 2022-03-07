@@ -52,7 +52,7 @@ class BusStation:
         return cls(
             name=payload['stationName'],
             station_id1=int(payload['stationId']),
-            station_id2=int(payload['mobileNo']),
+            station_id2=int(payload.get('mobileNo', 0)),
             pos_x=pos_x,
             pos_y=pos_y,
             st_type="GYEONGGI",

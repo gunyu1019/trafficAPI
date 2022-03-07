@@ -90,7 +90,7 @@ def station_info():
                         if result[_index].id2 == 0:
                             result[_index].id2 = station.id2
                             result[_index].type = station.type
-                        elif result[_index].id2 != station.id2:
+                        elif result[_index].id2 != station.id2 and station.id2 != 0:
                             result[_index].id2 = [
                                 result[_index].id2, station.id2
                             ]
@@ -118,7 +118,7 @@ def get_gyeonggi(client, station_id: str, result: list = None):
         arrival_data = client.gyeonggi_arrival.get_arrival(station_id=station_id)
         route_data = client.gyeonggi.get_route(station_id=station_id)
     except bus_api.EmptyData:
-        return []
+        return result
     for arrival in arrival_data:
         data[arrival.bus_id] = arrival
 
@@ -149,7 +149,7 @@ def get_incheon(client, station_id: str, result: list = None):
         arrival_data = client.incheon_arrival.get_arrival(station_id=station_id)
         route_data = client.incheon.get_route(station_id=station_id)
     except bus_api.EmptyData:
-        return []
+        return result
     for route in route_data:
         if route.id not in added_bus_id:
             data[route.id] = {
@@ -206,7 +206,10 @@ def arrival_info():
     result = []
     override = []
     if city_code == 11:
-        _result = client.seoul.get_arrival(station_id=station_id)
+        try:
+            _result = client.seoul.get_arrival(station_id=station_id)
+        except bus_api.EmptyData:
+            return jsonify([])
         _station_ids = _result[0].station.id1
         for bus in _result:
             if bus.bus_type != 8 and bus.bus_type != 7:
