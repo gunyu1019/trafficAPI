@@ -335,28 +335,28 @@ https://api.yhs.kr/bus/route
     </tr>
     <tr>
         <th>1001</th>
-        <td><span style="color: #8b4513">■</span> 공항버스</td>
+        <td><font color="#8b4513">■</font> 공항버스</td>
         <td rowspan="8">서울</td>
     </tr>
     <tr>
         <th>1002</th>
-        <td><span style="color: #5bb025">■</span> 마을버스</td>
+        <td><font color="#5bb025">■</font> 마을버스</td>
     </tr>
     <tr>
         <th>1003</th>
-        <td><span style="color: #3d5bab">■</span> 간선버스</td>
+        <td><font color="#3d5bab">■</font> 간선버스</td>
     </tr>
     <tr>
         <th>1004</th>
-        <td><span style="color: #5bb025">■</span> 지선버스</td>
+        <td><font color="#5bb025">■</font> 지선버스</td>
     </tr>
     <tr>
         <th>1005</th>
-        <td><span style="color: #f99d1c">■</span> 순환버스</td>
+        <td><font color="#f99d1c">■</font> 순환버스</td>
     </tr>
     <tr>
         <th>1006</th>
-        <td><span style="color:  #F72f08">■</span> 광역버스</td>
+        <td><font color=" #F72f08">■</font> 광역버스</td>
     </tr>
     <tr>
         <th>1009</th>
@@ -368,44 +368,44 @@ https://api.yhs.kr/bus/route
     </tr>
     <tr>
         <th>2011</th>
-        <td><span style="color: #FF0000">■</span> 직행좌석 시내버스</td>
+        <td><font color="#FF0000">■</font> 직행좌석 시내버스</td>
         <td rowspan="16">경기</td>
     </tr>
     <tr>
         <th>2012</th>
-        <td><span style="color: #0075C8">■</span> 좌석 시내버스</td>
+        <td><font color="#0075C8">■</font> 좌석 시내버스</td>
     </tr>
     <tr>
         <th>2013</th>
-        <td><span style="color: #33CC99">■</span> 일반 시내버스</td>
+        <td><font color="#33CC99">■</font> 일반 시내버스</td>
     </tr>
     <tr>
         <th>2014</th>
-        <td><span style="color: #000000">■</span> 광역급행 시내버스</td>
+        <td><font color="#000000">■</font> 광역급행 시내버스</td>
     </tr>
     <tr>
         <th>2015</th>
-        <td><span style="color: #B62367">■</span> 맞춤형버스(舊 따복버스)</td>
+        <td><font color="#B62367">■</font> 맞춤형버스(舊 따복버스)</td>
     </tr>
     <tr>
         <th>2016</th>
-        <td><span style="color: #FF0000">■</span> 경기순환버스</td>
+        <td><font color="#FF0000">■</font> 경기순환버스</td>
     </tr>
     <tr>
         <th>2021</th>
-        <td><span style="color: #FF0000">■</span> 직행좌석 농어촌버스</td>
+        <td><font color="#FF0000">■</font> 직행좌석 농어촌버스</td>
     </tr>
     <tr>
         <th>2022</th>
-        <td><span style="color: #0075C8">■</span> 좌석 농어촌버스</td>
+        <td><font color="#0075C8">■</font> 좌석 농어촌버스</td>
     </tr>
     <tr>
         <th>2023</th>
-        <td><span style="color: #33CC99">■</span> 일반 농어촌버스</td>
+        <td><font color="#33CC99">■</font> 일반 농어촌버스</td>
     </tr>
     <tr>
         <th>2030</th>
-        <td><span style="color: #F99D1C">■</span> 마을버스</td>
+        <td><font color="#F99D1C">■</font> 마을버스</td>
     </tr>
     <tr>
         <th>2041</th>
@@ -413,40 +413,40 @@ https://api.yhs.kr/bus/route
     </tr>
     <tr>
         <th>2042</th>
-        <td><span style="color: #0075C8">■</span> 좌석 시외버스</td>
+        <td><font color="#0075C8">■</font> 좌석 시외버스</td>
     </tr>
     <tr>
         <th>2043</th>
-        <td><span style="color: #a800ff">■</span> 일반 시외버스</td>
+        <td><font color="#a800ff">■</font> 일반 시외버스</td>
     </tr>
     <tr>
         <th>2051</th>
-        <td><span style="color: #aa9872">■</span> 리무진 공항버스</td>
+        <td><font color="#aa9872">■</font> 리무진 공항버스</td>
     </tr>
     <tr>
         <th>2052</th>
-        <td><span style="color: #0075C8">■</span> 좌석 공항버스</td>
+        <td><font color="#0075C8">■</font> 좌석 공항버스</td>
     </tr>
     <tr>
         <th>2053</th>
-        <td><span style="color: #8b4513">■</span> 일반 공항버스</td>
+        <td><font color="#8b4513">■</font> 일반 공항버스</td>
     </tr>
     <tr>
         <th>3001</th>
-        <td><span style="color: #5bb025">■</span> 지선버스</td>
+        <td><font color="#5bb025">■</font> 지선버스</td>
         <td rowspan="9">인천</td>
     </tr>
     <tr>
         <th>3002</th>
-        <td><span style="color: #3366cc">■</span> 간선버스</td>
+        <td><font color="#3366cc">■</font> 간선버스</td>
     </tr>
     <tr>
         <th>3003</th>
-        <td><span style="color: #3d5bab">■</span> 좌석버스</td>
+        <td><font color="#3d5bab">■</font> 좌석버스</td>
     </tr>
     <tr>
         <th>3004</th>
-        <td><span style="color: #f72f08">■</span> 광역버스</td>
+        <td><font color="#f72f08">■</font> 광역버스</td>
     </tr>
     <tr>
         <th>3005</th>
@@ -454,7 +454,7 @@ https://api.yhs.kr/bus/route
     </tr>
     <tr>
         <th>3006</th>
-        <td><span style="color: #5bb025">■</span> 마을버스</td>
+        <td><font color="#5bb025">■</font> 마을버스</td>
     </tr>
     <tr>
         <th>3007</th>
@@ -462,10 +462,10 @@ https://api.yhs.kr/bus/route
     </tr>
     <tr>
         <th>3008</th>
-        <td><span style="color: #000">■</span> 급행간선버스</td>
+        <td><font color="#000">■</font> 급행간선버스</td>
     </tr>
     <tr>
         <th>3009</th>
-        <td><span style="color: #5bb025">■</span> 지선순환버스</td>
+        <td><font color="#5bb025">■</font> 지선순환버스</td>
     </tr>
 </table>
