@@ -356,7 +356,7 @@ https://api.yhs.kr/bus/route
     </tr>
     <tr>
         <th>1006</th>
-        <td><img src="https://via.placeholder.com/15/ #F72f08/000?text=+"> 광역버스</td>
+        <td><img src="https://via.placeholder.com/15/F72f08/000?text=+"> 광역버스</td>
     </tr>
     <tr>
         <th>1009</th>
