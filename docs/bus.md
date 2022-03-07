@@ -335,28 +335,28 @@ https://api.yhs.kr/bus/route
     </tr>
     <tr>
         <th>1001</th>
-        <td><font color="#8b4513">■</font> 공항버스</td>
+        <td><img src="https://via.placeholder.com/15/8b4513/000?text=+"> 공항버스</td>
         <td rowspan="8">서울</td>
     </tr>
     <tr>
         <th>1002</th>
-        <td><font color="#5bb025">■</font> 마을버스</td>
+        <td><img src="https://via.placeholder.com/15/5bb025/000?text=+"> 마을버스</td>
     </tr>
     <tr>
         <th>1003</th>
-        <td><font color="#3d5bab">■</font> 간선버스</td>
+        <td><img src="https://via.placeholder.com/15/3d5bab/000?text=+"> 간선버스</td>
     </tr>
     <tr>
         <th>1004</th>
-        <td><font color="#5bb025">■</font> 지선버스</td>
+        <td><img src="https://via.placeholder.com/15/5bb025/000?text=+"> 지선버스</td>
     </tr>
     <tr>
         <th>1005</th>
-        <td><font color="#f99d1c">■</font> 순환버스</td>
+        <td><img src="https://via.placeholder.com/15/f99d1c/000?text=+"> 순환버스</td>
     </tr>
     <tr>
         <th>1006</th>
-        <td><font color=" #F72f08">■</font> 광역버스</td>
+        <td><img src="https://via.placeholder.com/15/ #F72f08/000?text=+"> 광역버스</td>
     </tr>
     <tr>
         <th>1009</th>
@@ -368,44 +368,44 @@ https://api.yhs.kr/bus/route
     </tr>
     <tr>
         <th>2011</th>
-        <td><font color="#FF0000">■</font> 직행좌석 시내버스</td>
+        <td><img src="https://via.placeholder.com/15/FF0000/000?text=+"> 직행좌석 시내버스</td>
         <td rowspan="16">경기</td>
     </tr>
     <tr>
         <th>2012</th>
-        <td><font color="#0075C8">■</font> 좌석 시내버스</td>
+        <td><img src="https://via.placeholder.com/15/0075C8/000?text=+"> 좌석 시내버스</td>
     </tr>
     <tr>
         <th>2013</th>
-        <td><font color="#33CC99">■</font> 일반 시내버스</td>
+        <td><img src="https://via.placeholder.com/15/33CC99/000?text=+"> 일반 시내버스</td>
     </tr>
     <tr>
         <th>2014</th>
-        <td><font color="#000000">■</font> 광역급행 시내버스</td>
+        <td><img src="https://via.placeholder.com/15/000000/000?text=+"> 광역급행 시내버스</td>
     </tr>
     <tr>
         <th>2015</th>
-        <td><font color="#B62367">■</font> 맞춤형버스(舊 따복버스)</td>
+        <td><img src="https://via.placeholder.com/15/B62367/000?text=+"> 맞춤형버스(舊 따복버스)</td>
     </tr>
     <tr>
         <th>2016</th>
-        <td><font color="#FF0000">■</font> 경기순환버스</td>
+        <td><img src="https://via.placeholder.com/15/FF0000/000?text=+"> 경기순환버스</td>
     </tr>
     <tr>
         <th>2021</th>
-        <td><font color="#FF0000">■</font> 직행좌석 농어촌버스</td>
+        <td><img src="https://via.placeholder.com/15/FF0000/000?text=+"> 직행좌석 농어촌버스</td>
     </tr>
     <tr>
         <th>2022</th>
-        <td><font color="#0075C8">■</font> 좌석 농어촌버스</td>
+        <td><img src="https://via.placeholder.com/15/0075C8/000?text=+"> 좌석 농어촌버스</td>
     </tr>
     <tr>
         <th>2023</th>
-        <td><font color="#33CC99">■</font> 일반 농어촌버스</td>
+        <td><img src="https://via.placeholder.com/15/33CC99/000?text=+"> 일반 농어촌버스</td>
     </tr>
     <tr>
         <th>2030</th>
-        <td><font color="#F99D1C">■</font> 마을버스</td>
+        <td><img src="https://via.placeholder.com/15/F99D1C/000?text=+"> 마을버스</td>
     </tr>
     <tr>
         <th>2041</th>
@@ -413,40 +413,40 @@ https://api.yhs.kr/bus/route
     </tr>
     <tr>
         <th>2042</th>
-        <td><font color="#0075C8">■</font> 좌석 시외버스</td>
+        <td><img src="https://via.placeholder.com/15/0075C8/000?text=+"> 좌석 시외버스</td>
     </tr>
     <tr>
         <th>2043</th>
-        <td><font color="#a800ff">■</font> 일반 시외버스</td>
+        <td><img src="https://via.placeholder.com/15/a800ff/000?text=+"> 일반 시외버스</td>
     </tr>
     <tr>
         <th>2051</th>
-        <td><font color="#aa9872">■</font> 리무진 공항버스</td>
+        <td><img src="https://via.placeholder.com/15/aa9872/000?text=+"> 리무진 공항버스</td>
     </tr>
     <tr>
         <th>2052</th>
-        <td><font color="#0075C8">■</font> 좌석 공항버스</td>
+        <td><img src="https://via.placeholder.com/15/0075C8/000?text=+"> 좌석 공항버스</td>
     </tr>
     <tr>
         <th>2053</th>
-        <td><font color="#8b4513">■</font> 일반 공항버스</td>
+        <td><img src="https://via.placeholder.com/15/8b4513/000?text=+"> 일반 공항버스</td>
     </tr>
     <tr>
         <th>3001</th>
-        <td><font color="#5bb025">■</font> 지선버스</td>
+        <td><img src="https://via.placeholder.com/15/5bb025/000?text=+"> 지선버스</td>
         <td rowspan="9">인천</td>
     </tr>
     <tr>
         <th>3002</th>
-        <td><font color="#3366cc">■</font> 간선버스</td>
+        <td><img src="https://via.placeholder.com/15/3366cc/000?text=+"> 간선버스</td>
     </tr>
     <tr>
         <th>3003</th>
-        <td><font color="#3d5bab">■</font> 좌석버스</td>
+        <td><img src="https://via.placeholder.com/15/3d5bab/000?text=+"> 좌석버스</td>
     </tr>
     <tr>
         <th>3004</th>
-        <td><font color="#f72f08">■</font> 광역버스</td>
+        <td><img src="https://via.placeholder.com/15/f72f08/000?text=+"> 광역버스</td>
     </tr>
     <tr>
         <th>3005</th>
@@ -454,7 +454,7 @@ https://api.yhs.kr/bus/route
     </tr>
     <tr>
         <th>3006</th>
-        <td><font color="#5bb025">■</font> 마을버스</td>
+        <td><img src="https://via.placeholder.com/15/5bb025/000?text=+"> 마을버스</td>
     </tr>
     <tr>
         <th>3007</th>
@@ -462,10 +462,10 @@ https://api.yhs.kr/bus/route
     </tr>
     <tr>
         <th>3008</th>
-        <td><font color="#000">■</font> 급행간선버스</td>
+        <td><img src="https://via.placeholder.com/15/000/000?text=+"> 급행간선버스</td>
     </tr>
     <tr>
         <th>3009</th>
-        <td><font color="#5bb025">■</font> 지선순환버스</td>
+        <td><img src="https://via.placeholder.com/15/5bb025/000?text=+"> 지선순환버스</td>
     </tr>
 </table>
