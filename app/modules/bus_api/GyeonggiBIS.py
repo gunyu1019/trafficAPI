@@ -1,6 +1,7 @@
 from .BaseClient import BaseClient
 from .models.BusStation import BusStation
 from .models.BusRoute import BusRoute
+from .models.BusStationAround import BusStationAround
 from .errors import *
 from app.utils import get_list_from_ordered_dict
 
@@ -33,6 +34,29 @@ class GyeonggiBIS(BaseClient):
 
         item_list = body['busStationList']
         return [BusStation.from_gyeonggi(x) for x in get_list_from_ordered_dict(item_list)]
+
+    def get_station_around(
+            self,
+            pos_x: float,
+            pos_y: float
+    ):
+        data = self.get(
+            path="/6410000/busstationservice/getBusStationAroundList",
+            params={
+                "x": pos_x,
+                "y": pos_y
+            }
+        )
+        result = data['response']
+
+        # HEAD AND BODY
+        head = result['msgHeader']
+        if 'msgBody' not in result:
+            raise EmptyData()
+        body = result['msgBody']
+
+        item_list = body['busStationList']
+        return [BusStationAround.from_gyeonggi(x) for x in get_list_from_ordered_dict(item_list)]
 
     def get_route(self, station_id: str):
         data = self.get(

@@ -1,4 +1,4 @@
-from typing import NamedTuple
+from typing import NamedTuple, Callable
 from collections import namedtuple
 
 from flask import Blueprint
@@ -41,29 +41,21 @@ token = Token(
 )
 
 
-@bp.route("/station", methods=['GET'])
-def station_info():
-    args = req.args
-    if "name" not in args:
-        return make_response(
-            jsonify({
-                "CODE": 400,
-                "MESSAGE": "Missing Bus Station name."
-            }),
-            400
-        )
-    station_name = args.get('name')
-    city_code = args.get('cityCode', default="1")
-
+def _station_info_base(
+        city_code: str,
+        callback: str,
+        *args,
+        **kwargs
+):
     if city_code == "11":
         client = bus_api.SeoulBIS(token=token.seoul_bis)
-        result = client.get_station(name=station_name)
+        result = getattr(client, callback)(*args, **kwargs)
     elif city_code == "12":
         client = bus_api.GyeonggiBIS(token=token.seoul_bis)
-        result = client.get_station(name=station_name)
+        result = getattr(client, callback)(*args, **kwargs)
     elif city_code == "13":
         client = bus_api.IncheonBIS(token=token.seoul_bis)
-        result = client.get_station(name=station_name)
+        result = getattr(client, callback)(*args, **kwargs)
     elif city_code == "1":
         client = [
             bus_api.SeoulBIS(token=token.seoul_bis),
@@ -75,12 +67,11 @@ def station_info():
 
         for _client in client:
             try:
-                _result = _client.get_station(name=station_name)
+                _result = getattr(_client, callback)(*args, **kwargs)
             except bus_api.EmptyData:
                 continue
 
             for index, station in enumerate(_result):
-                # print(station.name, station.id1, station.id2, station.type)
                 if station.id1 in _list_ids:
                     _index = _list_ids.index(station.id1)
                     if isinstance(result[_index].id2, list):
@@ -108,6 +99,48 @@ def station_info():
     return jsonify([
         x.to_data() for x in result
     ])
+
+
+@bp.route("/station", methods=['GET'])
+def station_info():
+    args = req.args
+    if "name" not in args:
+        return make_response(
+            jsonify({
+                "CODE": 400,
+                "MESSAGE": "Missing Bus Station name."
+            }),
+            400
+        )
+    station_name = args.get('name')
+    city_code = args.get('cityCode', default="1")
+    return _station_info_base(
+        city_code=city_code,
+        callback="get_station",
+        name=station_name
+    )
+
+
+@bp.route("/station/around", methods=['GET'])
+def station_info_around():
+    args = req.args
+    if "posX" not in args or "posY" not in args:
+        return make_response(
+            jsonify({
+                "CODE": 400,
+                "MESSAGE": "Missing posX or posY."
+            }),
+            400
+        )
+    pos_x = args.get('posX', type=float)
+    pos_y = args.get('posY', type=float)
+    city_code = args.get('cityCode', default="1")
+    return _station_info_base(
+        city_code=city_code,
+        callback="get_station_around",
+        pos_x=pos_x,
+        pos_y=pos_y
+    )
 
 
 def get_gyeonggi(client, station_id: str, result: list = None):

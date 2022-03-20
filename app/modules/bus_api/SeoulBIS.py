@@ -1,6 +1,7 @@
 from .BaseClient import BaseClient
 from .models.SeoulArrival import SeoulBusArrival
 from .models.BusStation import BusStation
+from .models.BusStationAround import BusStationAround
 from .errors import *
 from app.utils import get_list_from_ordered_dict
 
@@ -33,6 +34,31 @@ class SeoulBIS(BaseClient):
 
         item_list = body['itemList']
         return [BusStation.from_seoul(x) for x in get_list_from_ordered_dict(item_list)]
+
+    def get_station_around(
+            self,
+            pos_x: float,
+            pos_y: float,
+            around: int = 200
+    ):
+        data = self.get(
+            path="/api/rest/stationinfo/getStationByPos",
+            params={
+                "tmX": pos_x,
+                "tmY": pos_y,
+                "radius": around
+            }
+        )
+        result = data['ServiceResult']
+
+        # HEAD AND BODY
+        head = result['msgHeader']
+        body = result['msgBody']
+        if body is None:
+            raise EmptyData()
+
+        item_list = body['itemList']
+        return [BusStationAround.from_seoul(x) for x in get_list_from_ordered_dict(item_list)]
 
     def get_arrival(self, station_id: int):
         data = self.get(
