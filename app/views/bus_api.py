@@ -1,4 +1,4 @@
-from typing import NamedTuple, Callable
+from typing import NamedTuple
 from collections import namedtuple
 
 from flask import Blueprint
@@ -9,8 +9,7 @@ from flask import request as req
 from app.config.config import get_config
 from app.modules import bus_api
 from app.modules.bus_api.models.BusArrival import BusRouteInfo
-from app.modules.bus_api.models.GyeonggiArrival import GyeonggiBusArrival
-from app.modules.bus_api.models.IncheonArrival import IncheonBusArrival
+from app.arrival import get_incheon, get_gyeonggi
 
 bp = Blueprint(
     name="bus_api",
@@ -41,21 +40,28 @@ token = Token(
 )
 
 
-def _station_info_base(
-        city_code: str,
-        callback: str,
-        *args,
-        **kwargs
-):
+@bp.route("/station", methods=['GET'])
+def station_info():
+    args = req.args
+    if "name" not in args:
+        return make_response(
+            jsonify({
+                "CODE": 400,
+                "MESSAGE": "Missing Bus Station name."
+            }),
+            400
+        )
+    station_name = args.get('name')
+    city_code = args.get('cityCode', default="1")
     if city_code == "11":
         client = bus_api.SeoulBIS(token=token.seoul_bis)
-        result = getattr(client, callback)(*args, **kwargs)
+        result = client.get_station(name=station_name)
     elif city_code == "12":
         client = bus_api.GyeonggiBIS(token=token.seoul_bis)
-        result = getattr(client, callback)(*args, **kwargs)
+        result = client.get_station(name=station_name)
     elif city_code == "13":
         client = bus_api.IncheonBIS(token=token.seoul_bis)
-        result = getattr(client, callback)(*args, **kwargs)
+        result = client.get_station(name=station_name)
     elif city_code == "1":
         client = [
             bus_api.SeoulBIS(token=token.seoul_bis),
@@ -67,7 +73,7 @@ def _station_info_base(
 
         for _client in client:
             try:
-                _result = getattr(_client, callback)(*args, **kwargs)
+                _result = _client.get_station(name=station_name)
             except bus_api.EmptyData:
                 continue
 
@@ -101,26 +107,6 @@ def _station_info_base(
     ])
 
 
-@bp.route("/station", methods=['GET'])
-def station_info():
-    args = req.args
-    if "name" not in args:
-        return make_response(
-            jsonify({
-                "CODE": 400,
-                "MESSAGE": "Missing Bus Station name."
-            }),
-            400
-        )
-    station_name = args.get('name')
-    city_code = args.get('cityCode', default="1")
-    return _station_info_base(
-        city_code=city_code,
-        callback="get_station",
-        name=station_name
-    )
-
-
 @bp.route("/station/around", methods=['GET'])
 def station_info_around():
     args = req.args
@@ -135,74 +121,48 @@ def station_info_around():
     pos_x = args.get('posX', type=float)
     pos_y = args.get('posY', type=float)
     city_code = args.get('cityCode', default="1")
-    return _station_info_base(
-        city_code=city_code,
-        callback="get_station_around",
-        pos_x=pos_x,
-        pos_y=pos_y
-    )
 
+    map_data = get_config("map_data")
+    sections = map_data.sections()
+    client = []
+    for section in sections:
+        western_min = map_data.getfloat(section, "western-outer-longitude", fallback=None)
+        western_max = map_data.getfloat(section, "western-inner-longitude", fallback=None)
+        eastern_min = map_data.getfloat(section, "eastern-inner-longitude", fallback=None)
+        eastern_max = map_data.getfloat(section, "eastern-outer-longitude", fallback=None)
+        inner = True
+        if western_max is None and eastern_max is not None:
+            western_max = eastern_max
+            inner = False
+        if eastern_min is None and western_min is not None:
+            eastern_min = western_min
+            inner = False
 
-def get_gyeonggi(client, station_id: str, result: list = None):
-    if result is None:
-        result = []
-    data = {}
-    try:
-        arrival_data = client.gyeonggi_arrival.get_arrival(station_id=station_id)
-        route_data = client.gyeonggi.get_route(station_id=station_id)
-    except bus_api.EmptyData:
-        return result
-    for arrival in arrival_data:
-        data[arrival.bus_id] = arrival
-
-    for route in route_data:
-        if route.district == 1 or route.district == 3:
-            continue
-
-        if route.id in data:
-            result.append(
-                BusRouteInfo.from_gyeonggi(route, data[route.id])
-            )
-        else:
-            result.append(
-                BusRouteInfo.from_gyeonggi(route, GyeonggiBusArrival.empty())
-            )
-    return result
-
-
-def get_incheon(client, station_id: str, result: list = None):
-    if result is None:
-        result = []
-    added_bus_id = []
-    for bus in result:
-        added_bus_id.append(bus.id)
-
-    data = {}
-    try:
-        arrival_data = client.incheon_arrival.get_arrival(station_id=station_id)
-        route_data = client.incheon.get_route(station_id=station_id)
-    except bus_api.EmptyData:
-        return result
-    for route in route_data:
-        if route.id not in added_bus_id:
-            data[route.id] = {
-                "data": route,
-                "arrival": []
-            }
-
-    for arrival in arrival_data:
-        if arrival.id in data:
-            data[arrival.id]['arrival'].append(arrival)
-
-    for route_id in data.keys():
-        _route = data[route_id]['data']
-        _arrival = data[route_id]['arrival']
-        if len(_arrival) < 2:
-            [_arrival.append(IncheonBusArrival.empty()) for x in range(2 - len(_arrival))]
-        result.append(
-            BusRouteInfo.from_incheon(_route, _arrival)
+        southern_min = map_data.getfloat(section, "southern-outer-latitude", fallback=None)
+        southern_max = map_data.getfloat(section, "southern-inner-latitude", fallback=None)
+        northern_min = map_data.getfloat(section, "northern-inner-latitude", fallback=None)
+        northern_max = map_data.getfloat(section, "northern-outer-latitude", fallback=None)
+        if southern_max is None and northern_max is not None:
+            southern_max = northern_max
+            inner = False
+        if northern_min is None and southern_min is not None:
+            northern_min = southern_min
+            inner = False
+        _client = map_data.get(section, "client")
+        print(
+            western_min, western_max,
+            eastern_min, eastern_max,
+            southern_min, southern_max,
+            northern_min, northern_max,
+            pos_x, pos_y,
+            _client, western_min < pos_y < eastern_max and southern_min < pos_x < northern_max and _client not in client
         )
-    return result
+        if western_min < pos_y < eastern_max and southern_min < pos_x < northern_max and _client not in client:
+            if inner and not (western_max < pos_y < eastern_min and southern_max < pos_x < northern_min):
+                client.append(_client)
+            elif not inner:
+                client.append(_client)
+    print(client)
 
 
 @bp.route("/route", methods=['GET'])
