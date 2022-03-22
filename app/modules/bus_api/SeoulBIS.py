@@ -39,7 +39,7 @@ class SeoulBIS(BaseClient):
             self,
             pos_x: float,
             pos_y: float,
-            around: int = 200
+            around: int = 500
     ):
         data = self.get(
             path="/api/rest/stationinfo/getStationByPos",

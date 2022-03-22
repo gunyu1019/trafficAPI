@@ -55,7 +55,7 @@ class GyeonggiBIS(BaseClient):
             raise EmptyData()
         body = result['msgBody']
 
-        item_list = body['busStationList']
+        item_list = body['busStationAroundList']
         return [BusStationAround.from_gyeonggi(x) for x in get_list_from_ordered_dict(item_list)]
 
     def get_route(self, station_id: str):

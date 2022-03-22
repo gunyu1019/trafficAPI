@@ -103,7 +103,7 @@ def station_info():
             400
         )
     return jsonify([
-        x.to_data() for x in result
+        x.to_data() for x in result if x.id != 0
     ])
 
 
@@ -125,44 +125,98 @@ def station_info_around():
     map_data = get_config("map_data")
     sections = map_data.sections()
     client = []
-    for section in sections:
-        western_min = map_data.getfloat(section, "western-outer-longitude", fallback=None)
-        western_max = map_data.getfloat(section, "western-inner-longitude", fallback=None)
-        eastern_min = map_data.getfloat(section, "eastern-inner-longitude", fallback=None)
-        eastern_max = map_data.getfloat(section, "eastern-outer-longitude", fallback=None)
-        inner = True
-        if western_max is None and eastern_max is not None:
-            western_max = eastern_max
-            inner = False
-        if eastern_min is None and western_min is not None:
-            eastern_min = western_min
-            inner = False
+    if city_code == "1" or city_code == "2":
+        if city_code == "1":
+            client.append("SeoulBIS")
 
-        southern_min = map_data.getfloat(section, "southern-outer-latitude", fallback=None)
-        southern_max = map_data.getfloat(section, "southern-inner-latitude", fallback=None)
-        northern_min = map_data.getfloat(section, "northern-inner-latitude", fallback=None)
-        northern_max = map_data.getfloat(section, "northern-outer-latitude", fallback=None)
-        if southern_max is None and northern_max is not None:
-            southern_max = northern_max
-            inner = False
-        if northern_min is None and southern_min is not None:
-            northern_min = southern_min
-            inner = False
-        _client = map_data.get(section, "client")
-        print(
-            western_min, western_max,
-            eastern_min, eastern_max,
-            southern_min, southern_max,
-            northern_min, northern_max,
-            pos_x, pos_y,
-            _client, western_min < pos_y < eastern_max and southern_min < pos_x < northern_max and _client not in client
+        for section in sections:
+            western_min = map_data.getfloat(section, "western-outer-longitude", fallback=None)
+            western_max = map_data.getfloat(section, "western-inner-longitude", fallback=None)
+            eastern_min = map_data.getfloat(section, "eastern-inner-longitude", fallback=None)
+            eastern_max = map_data.getfloat(section, "eastern-outer-longitude", fallback=None)
+            inner = True
+            if western_max is None and eastern_max is not None:
+                western_max = eastern_max
+                inner = False
+            if eastern_min is None and western_min is not None:
+                eastern_min = western_min
+                inner = False
+
+            southern_min = map_data.getfloat(section, "southern-outer-latitude", fallback=None)
+            southern_max = map_data.getfloat(section, "southern-inner-latitude", fallback=None)
+            northern_min = map_data.getfloat(section, "northern-inner-latitude", fallback=None)
+            northern_max = map_data.getfloat(section, "northern-outer-latitude", fallback=None)
+            if southern_max is None and northern_max is not None:
+                southern_max = northern_max
+                inner = False
+            if northern_min is None and southern_min is not None:
+                northern_min = southern_min
+                inner = False
+            _client = map_data.get(section, "client")
+
+            if (
+                western_min < pos_x < eastern_max and
+                southern_min < pos_y < northern_max and
+                _client not in client and (
+                    inner and
+                    not (
+                        western_max < pos_x < eastern_min and
+                        southern_max < pos_y < northern_min
+                    ) or not inner
+                )
+            ):
+                client.append(_client)
+
+        result = []
+        _list_ids = []
+        for client_name in client:
+            _client = getattr(bus_api, client_name)(token=token.seoul_bis)
+            try:
+                _result = _client.get_station_around(
+                    pos_x=pos_x, pos_y=pos_y
+                )
+            except bus_api.EmptyData:
+                continue
+
+            for index, station in enumerate(_result):
+                if station.id1 in _list_ids:
+                    _index = _list_ids.index(station.id1)
+                    if isinstance(result[_index].id2, list):
+                        if station.id2 not in result[_index].id2:
+                            result[_index].id2.append(station.id2)
+                    else:
+                        if result[_index].id2 == 0:
+                            result[_index].id2 = station.id2
+                            result[_index].type = station.type
+                        elif result[_index].id2 != station.id2 and station.id2 != 0:
+                            result[_index].id2 = [
+                                result[_index].id2, station.id2
+                            ]
+                else:
+                    _list_ids.append(station.id1)
+                    result.append(station)
+    elif city_code == "11":
+        client = bus_api.SeoulBIS(token=token.seoul_bis)
+        result = client.get_station_around(pos_x=pos_x, pos_y=pos_y)
+    elif city_code == "12":
+        client = bus_api.GyeonggiBIS(token=token.seoul_bis)
+        result = client.get_station_around(pos_x=pos_x, pos_y=pos_y)
+    elif city_code == "13":
+        client = bus_api.IncheonBIS(token=token.seoul_bis)
+        result = client.get_station_around(pos_x=pos_x, pos_y=pos_y)
+    else:
+        return make_response(
+            jsonify({
+                "CODE": 400,
+                "MESSAGE": "Invalid City Code"
+            }),
+            400
         )
-        if western_min < pos_y < eastern_max and southern_min < pos_x < northern_max and _client not in client:
-            if inner and not (western_max < pos_y < eastern_min and southern_max < pos_x < northern_min):
-                client.append(_client)
-            elif not inner:
-                client.append(_client)
-    print(client)
+    final_result = [
+        x.to_data() for x in result if x.id != 0
+    ]
+    final_result = sorted(final_result, key=lambda x: x['distance'])
+    return jsonify(final_result)
 
 
 @bp.route("/route", methods=['GET'])
