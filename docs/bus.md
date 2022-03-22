@@ -75,9 +75,160 @@ https://api.yhs.kr/bus/station
         <th>displayId</th>
         <td>정류장 ID(사용자)</td>
         <td>integer</td>
-        <td>O</td>
+        <td>X</td>
         <td></td>
         <td>수도권 정류장 ID(5자리)</td>
+    </tr>
+    <tr>
+        <th>id</th>
+        <td>정류장 ID</td>
+        <td>integer</td>
+        <td>O</td>
+        <td></td>
+        <td>도착정보 조회를 위한 ID값</td>
+    </tr>
+    <tr>
+        <th>name</th>
+        <td>정류장 명</td>
+        <td>string</td>
+        <td>O</td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <th>posX</th>
+        <td>정류장 X좌표</td>
+        <td>float</td>
+        <td>O</td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <th>posY</th>
+        <td>정류장 Y좌표</td>
+        <td>float</td>
+        <td>O</td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <th>stationId</th>
+        <td>정류장 ID(개발자)</td>
+        <td>integer</td>
+        <td>O</td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <th>type</th>
+        <td>출처</td>
+        <td>integer</td>
+        <td>O</td>
+        <td></td>
+        <td>
+            도착정보 조회를 위한 유형<br/>
+            1: 자동 설정(/route 용)<br/>
+            2: 자동 설정(버스정류소 검색용)<br/>
+            11: 서울 지역<br/>
+            12: 경기 지역<br/>
+            13: 인천 지역<br/>
+        </td>
+    </tr>
+</table>
+
+### /station/around
+
+좌표 값을 기준으로 주변에 있는 정류장 정보를 불러옵니다.
+
+```
+https://api.yhs.kr/bus/station/around
+```
+
+#### Parameter
+
+<table>
+    <tr>
+        <th>키</th>
+        <th>설명</th>
+        <th>형태</th>
+        <th>필수 유무</th>
+        <th>기본 값</th>
+        <th>비고</th>
+    </tr>
+    <tr>
+        <th>posX</th>
+        <td>경도</td>
+        <td>float</td>
+        <td>O</td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <th>posY</th>
+        <td>위도</td>
+        <td>float</td>
+        <td>O</td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <th>cityCode</th>
+        <td>도시 코드</td>
+        <td>integer</td>
+        <td>X</td>
+        <td>1</td>
+        <td>
+            1: 자동 설정<br/>
+            11: 서울 지역<br/>
+            12: 경기 지역<br/>
+            13: 인천 지역<br/>
+        </td>
+    </tr>
+</table>
+
+#### Return
+
+```json
+[
+  {
+    "distance": 100,
+    "displayId": 22009,
+    "id": 22009,
+    "name": "신분당선강남역",
+    "posX": 127.0284005454,
+    "posY": 37.4960417459,
+    "stationId": 121000009,
+    "type": 11
+  }
+]
+```
+
+* 기본 구조
+
+<table>
+    <tr>
+        <th>키</th>
+        <th>설명</th>
+        <th>형태</th>
+        <th>필수 유무</th>
+        <th>기본 값</th>
+        <th>비고</th>
+    </tr>
+    <tr>
+        <th>displayId</th>
+        <td>정류장 ID(사용자)</td>
+        <td>integer</td>
+        <td>X</td>
+        <td></td>
+        <td>수도권 정류장 ID(5자리)</td>
+    </tr>
+    <tr>
+        <th>distance</th>
+        <td>정류장까지 거리</td>
+        <td>integer</td>
+        <td>O</td>
+        <td></td>
+        <td>m(미터법) 기준</td>
     </tr>
     <tr>
         <th>id</th>
