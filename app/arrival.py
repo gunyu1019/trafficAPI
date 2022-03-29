@@ -7,6 +7,9 @@ from app.modules.bus_api.models.IncheonArrival import IncheonBusArrival
 def get_gyeonggi(client, station_id: str, result: list = None):
     if result is None:
         result = []
+    added_bus_id = []
+    for bus in result:
+        added_bus_id.append(bus.id)
     data = {}
     try:
         arrival_data = client.gyeonggi_arrival.get_arrival(station_id=station_id)
@@ -17,7 +20,7 @@ def get_gyeonggi(client, station_id: str, result: list = None):
         data[arrival.bus_id] = arrival
 
     for route in route_data:
-        if route.district == 1 or route.district == 3:
+        if route.id in added_bus_id:
             continue
 
         if route.id in data:
@@ -26,7 +29,7 @@ def get_gyeonggi(client, station_id: str, result: list = None):
             )
         else:
             result.append(
-                BusRouteInfo.from_gyeonggi(route, GyeonggiBusArrival.empty())
+                BusRouteInfo.from_gyeonggi(route)
             )
     return result
 

@@ -10,6 +10,7 @@ class BusRouteInfo:
         self.name: str = payload['name']
         self.id: str = payload['id']
         self.type: str = payload['type']
+        self.is_end: str = payload.get('is_end')
         self.arrival_info: List[BusArrivalInfo] = [
             BusArrivalInfo(**x) for x in payload['arrival_info']
         ]
@@ -20,6 +21,7 @@ class BusRouteInfo:
             name=data.name,
             id=data.id,
             type="10" + format(data.bus_type, '02d'),
+            is_end="운행종료" == data.msg1,
             arrival_info=[
                 {
                     "type": getattr(data, "vehicle_type{0}".format(key)),
@@ -27,13 +29,14 @@ class BusRouteInfo:
                     "prev_count": getattr(data, "prev_count{0}".format(key)),
                     "prev_station": getattr(data, "now_station{0}".format(key)),
                     "is_full": getattr(data, "is_full{0}".format(key)),
-                    "is_arrival": getattr(data, "is_arrive{0}".format(key))
-                } for key in range(1, 3)
+                    "is_arrival": getattr(data, "is_arrive{0}".format(key)),
+                    "is_last": getattr(data, "is_last{0}".format(key))
+                } for key in range(1, 3) if "운행종료" != getattr(data, "msg{0}".format(key))
             ]
         )
 
     @classmethod
-    def from_gyeonggi(cls, route: BusRoute, arrival: GyeonggiBusArrival):
+    def from_gyeonggi(cls, route: BusRoute, arrival: Optional[GyeonggiBusArrival] = None):
         return cls(
             name=route.name,
             id=route.id,
@@ -55,7 +58,7 @@ class BusRouteInfo:
                     "is_arrival": getattr(arrival, "prev_count{0}".format(key)) <= 1
                     if isinstance(getattr(arrival, "prev_count{0}".format(key), None), int)
                     else False
-                } for key in range(1, 3)
+                } for key in range(1, 3) if arrival is not None
             ]
         )
 
@@ -79,7 +82,8 @@ class BusRouteInfo:
                 "is_full": True if x.seat == 0 else False,
                 "is_arrival": x.prev_count <= 1
                 if isinstance(x.prev_count, int)
-                else False
+                else False,
+                "is_last": x.is_last
             }) for x in arrival
         ]
         return new_cls
@@ -95,6 +99,7 @@ class BusRouteInfo:
             "name": self.name,
             "id": self.id,
             "type": self.type,
+            "is_end": self.is_end,
             "arrivalInfo": [x.to_dict() for x in self.arrival_info]
         }
 
@@ -109,6 +114,7 @@ class BusArrivalInfo:
         self.congestion: Optional[int] = payload.get('congestion')
         self.car_number: Optional[str] = payload.get('car_number')
         self.is_full: Optional[bool] = payload.get('is_full')
+        self.is_last: Optional[bool] = payload.get('is_last')
         self.is_arrival: Optional[bool] = payload.get('is_arrival')
 
     def to_dict(self) -> dict:
@@ -120,5 +126,6 @@ class BusArrivalInfo:
             "seat": self.seat,
             "isFull": self.is_full,
             "isArrival": self.is_arrival,
+            "isLast": self.is_last,
             "prevCount": self.prev_count
         }

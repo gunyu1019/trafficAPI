@@ -23,7 +23,7 @@ class SeoulBusArrival:
             pos_x=pos_x,
             pos_y=pos_y
         )
-
+        self.congestion = get_int(payload.get("congestion"))
         self.next_station = payload['nxtStn']
         self.term = payload['term']
 
