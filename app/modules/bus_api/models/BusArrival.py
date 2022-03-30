@@ -33,7 +33,8 @@ class BusRouteInfo:
                     "is_last": getattr(data, "is_last{0}".format(key))
                 } for key in range(1, 3) if (
                     "운행종료" != getattr(data, "msg{0}".format(key)) and
-                    "출발대기" != getattr(data, "msg{0}".format(key))
+                    "출발대기" != getattr(data, "msg{0}".format(key)) and
+                    "회차대기" != getattr(data, "msg{0}".format(key))
                 )
             ]
         )
@@ -102,7 +103,7 @@ class BusRouteInfo:
             "name": self.name,
             "id": self.id,
             "type": self.type,
-            "is_end": self.is_end,
+            "isEnd": self.is_end,
             "arrivalInfo": [x.to_dict() for x in self.arrival_info]
         }
 
