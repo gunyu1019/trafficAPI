@@ -31,7 +31,10 @@ class BusRouteInfo:
                     "is_full": getattr(data, "is_full{0}".format(key)),
                     "is_arrival": getattr(data, "is_arrive{0}".format(key)),
                     "is_last": getattr(data, "is_last{0}".format(key))
-                } for key in range(1, 3) if "운행종료" != getattr(data, "msg{0}".format(key)) or "출발대기" != getattr(data, "msg{0}".format(key))
+                } for key in range(1, 3) if (
+                    "운행종료" != getattr(data, "msg{0}".format(key)) and
+                    "출발대기" != getattr(data, "msg{0}".format(key))
+                )
             ]
         )
 
