@@ -43,12 +43,13 @@ class BusRouteInfo:
 
     @classmethod
     def from_gyeonggi(cls, route: BusRoute, arrival: Optional[GyeonggiBusArrival] = None):
+        flag = getattr(arrival, "flag", None)
         return cls(
             name=route.name,
             id=route.id,
             type="20" + format(route.type, '02d'),
-            is_end="STOP" == arrival.flag,
-            is_wait="WAIT" == arrival.flag,
+            is_end="STOP" == flag,
+            is_wait="WAIT" == flag,
             arrival_info=[
                 {
                     "car_number": getattr(arrival, "car_number{0}".format(key), None),
