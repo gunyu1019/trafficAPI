@@ -10,7 +10,8 @@ class BusRouteInfo:
         self.name: str = payload['name']
         self.id: str = payload['id']
         self.type: str = payload['type']
-        self.is_end: str = payload.get('is_end')
+        self.is_end: bool = payload.get('is_end')
+        self.is_wait: bool = payload.get('is_wait')
         self.arrival_info: List[BusArrivalInfo] = [
             BusArrivalInfo(**x) for x in payload['arrival_info']
         ]
@@ -22,6 +23,7 @@ class BusRouteInfo:
             id=data.id,
             type="10" + format(data.bus_type, '02d'),
             is_end="운행종료" == data.msg1,
+            is_wait="출발대기" == data.msg1 and "회차대기" == data.msg1,
             arrival_info=[
                 {
                     "type": getattr(data, "vehicle_type{0}".format(key)),
@@ -45,6 +47,8 @@ class BusRouteInfo:
             name=route.name,
             id=route.id,
             type="20" + format(route.type, '02d'),
+            is_end="STOP" == arrival.flag,
+            is_wait="WAIT" == arrival.flag,
             arrival_info=[
                 {
                     "car_number": getattr(arrival, "car_number{0}".format(key), None),
@@ -104,6 +108,7 @@ class BusRouteInfo:
             "id": self.id,
             "type": self.type,
             "isEnd": self.is_end,
+            "isWait": self.is_wait,
             "arrivalInfo": [x.to_dict() for x in self.arrival_info]
         }
 

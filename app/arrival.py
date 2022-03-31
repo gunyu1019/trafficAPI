@@ -61,8 +61,8 @@ def get_incheon(client, station_id: str, result: list = None):
     for route_id in data.keys():
         _route = data[route_id]['data']
         _arrival = data[route_id]['arrival']
-        if len(_arrival) < 2:
-            [_arrival.append(IncheonBusArrival.empty()) for x in range(2 - len(_arrival))]
+        # if len(_arrival) < 2:
+        #     [_arrival.append(IncheonBusArrival.empty()) for x in range(2 - len(_arrival))]
         result.append(
             BusRouteInfo.from_incheon(_route, _arrival)
         )
