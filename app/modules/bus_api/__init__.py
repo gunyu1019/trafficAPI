@@ -1,4 +1,3 @@
-from .errors import *
 from .models import *
 from .SeoulBIS import SeoulBIS
 from .GyeonggiBIS import GyeonggiBIS

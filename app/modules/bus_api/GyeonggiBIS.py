@@ -1,8 +1,8 @@
-from .BaseClient import BaseClient
+from app.modules.baseClient import BaseClient
 from .models.BusStation import BusStation
 from .models.BusRoute import BusRoute
 from .models.BusStationAround import BusStationAround
-from .errors import *
+from app.modules.errors import *
 from app.utils import get_list_from_ordered_dict
 
 

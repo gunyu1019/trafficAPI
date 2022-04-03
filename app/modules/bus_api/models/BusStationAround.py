@@ -1,7 +1,7 @@
 from typing import Union, List
 
 from .BusStation import BusStation
-from ..errors import EmptyData
+from app.modules.errors import EmptyData
 
 
 class BusStationAround(BusStation):

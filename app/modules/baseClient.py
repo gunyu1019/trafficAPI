@@ -1,12 +1,11 @@
 import json
 import xmltodict
 
-from abc import *
 from typing import Dict, Any
 from requests import request
 
 
-class BaseClient(metaclass=ABCMeta):
+class BaseClient:
     def __init__(self, base_url: str):
         self.BASE = base_url
 
@@ -14,10 +13,12 @@ class BaseClient(metaclass=ABCMeta):
             self,
             method: str,
             path: str,
-            _default_params: Dict[str, Any],
+            _default_params: Dict[str, Any] = None,
             _default_xml: bool = False,
             **kwargs
     ):
+        if _default_params is None:
+            _default_params = {}
         url = "{0}{1}".format(self.BASE, path)
 
         params = _default_params

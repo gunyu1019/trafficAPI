@@ -27,7 +27,6 @@ def create_app():
             spec.loader.exec_module(lib)  # type: ignore
         except Exception as e:
             log.error("Extension Failed: {0} ({1})".format(view, e.__class__.__name__))
-            raise e
             continue
 
         try:

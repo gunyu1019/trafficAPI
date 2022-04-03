@@ -1,6 +1,6 @@
-from .BaseClient import BaseClient
+from app.modules.baseClient import BaseClient
 from .models.GyeonggiArrival import GyeonggiBusArrival
-from .errors import *
+from app.modules.errors import *
 from app.utils import get_list_from_ordered_dict
 
 

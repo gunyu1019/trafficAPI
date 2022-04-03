@@ -138,3 +138,6 @@ privkey.pem
 
 # Config File
 app/config/config.ini
+
+# Dummy File
+app/data/
