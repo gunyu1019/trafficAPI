@@ -85,7 +85,7 @@ def around_bike_info():
             }),
             400
         )
-    distance = args.get('distance', type=int)
+    distance = args.get('distance', type=int, default=500)
     pos_x = args.get('posX', type=float)
     pos_y = args.get('posY', type=float)
     return
