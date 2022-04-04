@@ -1,5 +1,5 @@
-from typing import Dict, Any
-from app.utils import get_int, get_float
+from typing import Dict, Any, Optional, Tuple
+from app.utils import get_int, get_float, haversine
 
 
 class RideBike:
@@ -11,6 +11,20 @@ class RideBike:
         self.pos_x = get_float(payload.get("stationLongitude"))
         self.pos_y = get_float(payload.get("stationLatitude"))
         self.id = payload.get("stationId")
+
+        self._distance = None
+
+    def distance_set(self, pos_x, pos_y) -> Optional[float]:
+        self._distance = haversine(
+            self.pos_y, self.pos_x, pos_y, pos_x
+        )
+        return self._distance
+
+    @property
+    def distance(self) -> Optional[float]:
+        if self._distance is None:
+            return
+        return round(self._distance, 2)
 
     @classmethod
     def from_dict(cls, payload: dict):
@@ -25,7 +39,7 @@ class RideBike:
         })
 
     def to_dict(self) -> Dict[str, Any]:
-        return {
+        result = {
             "id": self.id,
             "name": self.name,
             "rests": self.rests,
@@ -34,3 +48,6 @@ class RideBike:
             "posX": self.pos_x,
             "posY": self.pos_y
         }
+        if self.distance is not None:
+            result['distance'] = self.distance
+        return result

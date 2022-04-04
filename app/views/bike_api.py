@@ -1,7 +1,7 @@
 import os
 import json
 from datetime import datetime
-from typing import NamedTuple, List
+from typing import NamedTuple, List, Tuple, Optional
 
 from flask import Blueprint
 from flask import jsonify
@@ -43,12 +43,12 @@ def load_bike_data() -> BikeData:
                 break
             index += 1
 
-        last_update = datetime.now().timestamp()
+        last_update = datetime.now()
         with open(os.path.join(directory, "data", "bike_data.json"), "w", encoding='utf8') as fp:
             json.dump(
                 {
                     "data": [x.to_dict() for x in post_data],
-                    "lastUpdate": last_update
+                    "lastUpdate": last_update.timestamp()
                 }, fp, ensure_ascii=False, indent=4
             )
         data = post_data
@@ -88,4 +88,12 @@ def around_bike_info():
     distance = args.get('distance', type=int, default=500)
     pos_x = args.get('posX', type=float)
     pos_y = args.get('posY', type=float)
-    return
+    data = load_bike_data()
+
+    return jsonify({
+        "data": sorted(
+            [station.to_dict() for station in data.data if station.distance_set(pos_x, pos_y) <= distance],
+            key=lambda x: x['distance']
+        ),
+        "lastUpdate": data.datetime.timestamp()
+    })
