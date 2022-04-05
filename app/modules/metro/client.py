@@ -26,4 +26,4 @@ class Client(BaseClient):
         if "SearchInfoBySubwayNameService" not in data:
             raise EmptyData()
         result = data['SearchInfoBySubwayNameService']
-        return
+        return [RealtimeArrival.from_payload(x) for x in result.get("row", [])]
