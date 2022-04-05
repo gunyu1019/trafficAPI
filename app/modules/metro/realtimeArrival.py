@@ -63,3 +63,27 @@ class RealtimeArrival:
             stations=payload.get("statnList", ""),
             subways=payload.get("subwayList", "")
         )
+
+    @property
+    def is_entry(self) -> bool:
+        return self._status == "0"
+
+    @property
+    def is_arrive(self) -> bool:
+        return self._status == "1"
+
+    @property
+    def is_departure(self) -> bool:
+        return self._status == "2"
+
+    @property
+    def is_prev_departure(self) -> bool:
+        return self._status == "3"
+
+    @property
+    def is_prev_entry(self) -> bool:
+        return self._status == "4"
+
+    @property
+    def is_prev_arrive(self) -> bool:
+        return self._status == "5"
