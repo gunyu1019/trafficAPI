@@ -38,11 +38,15 @@ class RealtimeArrival:
     def from_payload(cls, payload: Dict[str, Any]):
         ord_key = payload.get('ordkey')
         compiler = re.compile(
-            r'(?P<direction>[0-1]\d{0})(?P<order>[0-9]\d{0})(?P<past_station>\d{1,4})(?P<destination>[가-힣|()|0-9]+)(?P<rapid>\d)'
+            r'(?P<direction>[0-1]\d{0})'
+            r'(?P<order>[0-9]\d{0})'
+            r'(?P<past_station>\d{1,4})'
+            r'(?P<destination>[가-힣|()0-9]+)'
+            r'(?P<rapid>\d)'
         )
         post_ord_key = compiler.search(ord_key)
         if post_ord_key is None:
-            raise Exception("Unknown Regex")
+            raise Exception("Unknown Regex, {}".format(ord_key))
         converted_post_ord_key = OrdKey(**post_ord_key.groupdict())
         return cls(
             subway=get_int(payload['subwayId']),

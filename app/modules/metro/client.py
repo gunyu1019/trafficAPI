@@ -1,6 +1,6 @@
 from app.modules.baseClient import BaseClient
 from app.modules.errors import EmptyData
-from .realtimeArrival import RealtimeArrival
+from .station import Station
 
 
 class Client(BaseClient):
@@ -26,4 +26,4 @@ class Client(BaseClient):
         if "SearchInfoBySubwayNameService" not in data:
             raise EmptyData()
         result = data['SearchInfoBySubwayNameService']
-        return [RealtimeArrival.from_payload(x) for x in result.get("row", [])]
+        return [Station(x) for x in result.get("row", [])]
