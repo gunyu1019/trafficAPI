@@ -119,7 +119,16 @@ def station_query():
             400
         )
     name = args['name']
-    station_data = metro_client.query(name=name, start_index=1, end_index=1000)
+    try:
+        station_data = metro_client.query(name=name, start_index=1, end_index=1000)
+    except EmptyData:
+        return make_response(
+            jsonify({
+                "CODE": 404,
+                "MESSAGE": "Not Found."
+            }),
+            404
+        )
     return jsonify([
         x.to_dict() for x in station_data
     ])
@@ -164,13 +173,16 @@ def timetable_info():
             }),
             400
         )
-    timetable_data = metro_client.timetable(
-        station_id=station_id,
-        start_index=1,
-        end_index=1000,
-        direction=direction,
-        time_type=week_type
-    )
+    try:
+        timetable_data = metro_client.timetable(
+            station_id=station_id,
+            start_index=1,
+            end_index=1000,
+            direction=direction,
+            time_type=week_type
+        )
+    except EmptyData:
+        timetable_data = []
     return jsonify([
         x.to_dict() for x in sorted(timetable_data, key=lambda x:(x.hours, x.minutes, x.seconds))
     ])
