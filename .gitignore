@@ -139,5 +139,5 @@ privkey.pem
 # Config File
 app/config/config.ini
 
-# Dummy File
-app/data/
+# Dummy File (Only Bike Data)
+app/data/bike_data.json

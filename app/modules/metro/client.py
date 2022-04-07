@@ -26,4 +26,4 @@ class Client(BaseClient):
         if "SearchInfoBySubwayNameService" not in data:
             raise EmptyData()
         result = data['SearchInfoBySubwayNameService']
-        return [Station(x) for x in result.get("row", [])]
+        return [Station.from_payload(x) for x in result.get("row", [])]

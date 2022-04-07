@@ -1,6 +1,6 @@
 import os
 import re
-from typing import NamedTuple, List, Optional
+from typing import List
 
 import pandas
 from flask import Blueprint
@@ -11,7 +11,7 @@ from flask import request as req
 from app.config.config import get_config
 from app.directory import directory
 from app.modules.errors import EmptyData
-from app.modules.metro import arrival, client, realtimeArrival
+from app.modules.metro import arrival, client, realtimeArrival, namedTupleModel
 
 bp = Blueprint(
     name="metro_api",
@@ -24,22 +24,6 @@ metro_client = client.Client(parser.get("token", "SeoulMetro"))
 
 with open(os.path.join(directory, "data", "station_info.csv"), 'r', encoding='utf8') as fp:
     station_info = pandas.read_csv(fp)
-
-
-with open(os.path.join(directory, "data", "subway.csv"), 'r', encoding='utf8') as fp:
-    subway_info = pandas.read_csv(fp)
-
-
-class SubwayInfo(NamedTuple):
-    subwayId: Optional[int]
-    name: str
-    inSubwayId: Optional[str]
-
-
-class StationInfo(NamedTuple):
-    subway: int
-    stationId: int
-    name: str
 
 
 @bp.route("/arrival", methods=['GET'])
@@ -70,7 +54,7 @@ def arrival_info():
             }),
             500
         )
-    info = StationInfo(**pre_dict_data[0])
+    info = namedTupleModel.StationInfo(**pre_dict_data[0])
     try:
         arrival_data = arrival_client.arrival_info(name=info.name, start_index=1, end_index=1000)
     except EmptyData:
@@ -91,9 +75,11 @@ def arrival_info():
         (station_info['name'].str.match(r"{}(\([가-핳|0-9a-zA-Z]+\))".format(real_name))) |
         (station_info['name'] == real_name)
         ].to_dict('records')
-    transform = [StationInfo(**x) for x in pre_transform if x['stationId'] != info.stationId]
+    transform = [namedTupleModel.StationInfo(**x) for x in pre_transform if x['stationId'] != info.stationId]
 
-    def transform_arrival_loop(_arrival_data, _station: StationInfo) -> List[realtimeArrival.RealtimeArrival]:
+    def transform_arrival_loop(_arrival_data, _station: namedTupleModel.StationInfo) -> List[
+        realtimeArrival.RealtimeArrival
+    ]:
         if _station.name == info.name:
             return _arrival_data
         transform_arrival_data = arrival_client.arrival_info(name=_station.name, start_index=1, end_index=1000)
@@ -133,21 +119,6 @@ def station_query():
         )
     name = args['name']
     station_data = metro_client.query(name=name, start_index=1, end_index=1000)
-    for index, _station_data in enumerate(station_data):
-        _subway_info = subway_info[subway_info['inSubwayId'] == _station_data.line_number].to_dict('records')
-        subway = None
-        if len(_subway_info) > 0:
-            subway = SubwayInfo(
-                **_subway_info[0]
-            )
-            setattr(station_data[index], "_subway", subway)
-
-        _arrival_station_info = station_info[(station_info['subway'] == subway.subwayId) & (station_info['name'].str.contains(name))].to_dict('records')
-        if len(_arrival_station_info) > 0:
-            arrival_station_info = StationInfo(
-                **_arrival_station_info[0]
-            )
-            setattr(station_data[index], "_arrival_station", arrival_station_info.stationId)
     return jsonify([
         x.to_dict() for x in station_data
     ])
