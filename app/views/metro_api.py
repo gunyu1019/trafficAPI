@@ -1,5 +1,6 @@
 import os
 import re
+import datetime
 from typing import List
 
 import pandas
@@ -121,4 +122,55 @@ def station_query():
     station_data = metro_client.query(name=name, start_index=1, end_index=1000)
     return jsonify([
         x.to_dict() for x in station_data
+    ])
+
+
+@bp.route("/timetable", methods=['GET'])
+def timetable_info():
+    args = req.args
+    if "id" not in args:
+        return make_response(
+            jsonify({
+                "CODE": 400,
+                "MESSAGE": "Missing Metro Station Id."
+            }),
+            400
+        )
+    weekday = datetime.datetime.now().weekday()
+    default_week_type = 0
+    if 0 <= weekday <= 4:
+        default_week_type = 0
+    elif 4 < weekday <= 5:
+        default_week_type = 1
+    elif 5 < weekday <= 6:
+        default_week_type = 2
+
+    station_id = args['id']
+    direction = args.get("direction", type=int, default=0) + 1
+    week_type = args.get("weekType", type=int, default=default_week_type) + 1
+    if not(0 < direction < 4):
+        return make_response(
+            jsonify({
+                "CODE": 400,
+                "MESSAGE": "Wrong direction."
+            }),
+            400
+        )
+    if not(0 < week_type < 3):
+        return make_response(
+            jsonify({
+                "CODE": 400,
+                "MESSAGE": "Wrong weekType."
+            }),
+            400
+        )
+    timetable_data = metro_client.timetable(
+        station_id=station_id,
+        start_index=1,
+        end_index=1000,
+        direction=direction,
+        time_type=week_type
+    )
+    return jsonify([
+        x.to_dict() for x in sorted(timetable_data, key=lambda x:(x.hours, x.minutes, x.seconds))
     ])
