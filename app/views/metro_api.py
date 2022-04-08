@@ -13,6 +13,7 @@ from app.config.config import get_config
 from app.directory import directory
 from app.modules.errors import EmptyData
 from app.modules.metro import arrival, client, realtimeArrival, namedTupleModel
+from app.utils import haversine
 
 bp = Blueprint(
     name="metro_api",
@@ -25,6 +26,10 @@ metro_client = client.Client(parser.get("token", "SeoulMetro"))
 
 with open(os.path.join(directory, "data", "station_info.csv"), 'r', encoding='utf8') as fp:
     station_info = pandas.read_csv(fp)
+
+
+with open(os.path.join(directory, "data", "station_position.csv"), 'r', encoding='utf8') as fp:
+    station_position = pandas.read_csv(fp)
 
 
 @bp.route("/arrival", methods=['GET'])
@@ -186,3 +191,40 @@ def timetable_info():
     return jsonify([
         x.to_dict() for x in sorted(timetable_data, key=lambda x:(x.hours, x.minutes, x.seconds))
     ])
+
+
+@bp.route("/around", methods=['GET'])
+def around_info():
+    args = req.args
+    if "posX" not in args or "posY" not in args:
+        return make_response(
+            jsonify({
+                "CODE": 400,
+                "MESSAGE": "Missing posX or posY."
+            }),
+            400
+        )
+    distance = args.get('distance', type=int, default=500)
+    details = args.get('details', type=bool, default=True)
+    pos_x = args.get('posX', type=float)
+    pos_y = args.get('posY', type=float)
+    stations = [
+        namedTupleModel.StationPosition(**station).name
+        for station in station_position.to_dict('records')
+        if haversine(station['posX'], station['posY'], pos_x, pos_y) <= distance
+    ]
+    if not details:
+        return jsonify(stations)
+    result = {}
+    for name in stations:
+        try:
+            data = metro_client.query(name=name, start_index=1, end_index=1000)
+            result[name] = {
+                "distance": round(
+                    haversine(data[0].pos_x, data[0].pos_y, pos_x, pos_y), 2
+                ),
+                "data": [x.to_dict_for_around() for x in data]
+            }
+        except EmptyData:
+            continue
+    return jsonify(result)

@@ -9,6 +9,10 @@ with open(os.path.join(directory, "data", "station_info.csv"), 'r', encoding='ut
     station_info = pandas.read_csv(fp)
 
 
+with open(os.path.join(directory, "data", "station_position.csv"), 'r', encoding='utf8') as fp:
+    station_position = pandas.read_csv(fp)
+
+
 with open(os.path.join(directory, "data", "subway.csv"), 'r', encoding='utf8') as fp:
     subway_info = pandas.read_csv(fp)
 
@@ -22,6 +26,9 @@ class Station:
         self.display_name = kwargs.get('display_name')
         self.subway = kwargs.get('subway')
         self.subway_id = kwargs.get('subway_id')
+
+        self.pos_x = kwargs.get('pos_x')
+        self.pos_y = kwargs.get('pos_y')
 
         self._line_id = kwargs['line_id']
 
@@ -52,6 +59,14 @@ class Station:
                 )
             elif len(_arrival_station) > 1:
                 raise Exception("Incorrect Subway Info")
+        _station_position = station_position[station_position['name'] == name].to_dict('records')
+        position = namedTupleModel.StationPosition(name, -1.0, -1.0)
+        if len(_station_position) > 0:
+            position = namedTupleModel.StationPosition(
+                **_station_position[0]
+            )
+        elif len(_station_position) > 1:
+            raise Exception("Incorrect Subway Info")
         return cls(
             arrival_id=arrival_station.stationId,
             display_name=arrival_station.name,
@@ -60,6 +75,8 @@ class Station:
             station_id=payload.get("STATION_CD"),
             line_id=line_number,
             subway=subway.name,
+            pos_x=position.posX if position.posX != -1.0 else None,
+            pos_y=position.posY if position.posY != -1.0 else None,
             subway_id=subway.subwayId if subway.subwayId != 0 else None
         )
 
@@ -70,6 +87,20 @@ class Station:
             "code": self.code,
             "name": self.name,
             "id": self.id,
+            "posX": self.pos_x,
+            "posY": self.pos_y,
+            "subway": self.subway,
+            "subwayId": self.subway_id
+        }
+
+    def to_dict_for_around(self) -> Dict[str, Any]:
+        return {
+            "arrivalStationId": self.arrival_id,
+            "displayName": self.display_name,
+            "code": self.code,
+            "id": self.id,
+            "posX": self.pos_x,
+            "posY": self.pos_y,
             "subway": self.subway,
             "subwayId": self.subway_id
         }
