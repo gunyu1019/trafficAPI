@@ -22,7 +22,7 @@ https://api.yhs.kr/bike/query
     </tr>
     <tr>
         <th>name</th>
-        <td>정류소 명칭</td>
+        <td>대여소 명칭</td>
         <td>string</td>
         <td>O</td>
         <td></td>
@@ -99,7 +99,7 @@ https://api.yhs.kr/bike/query
     </tr>
     <tr>
         <th>name</th>
-        <td>정류장 명</td>
+        <td>대여소 명</td>
         <td>string</td>
         <td>O</td>
         <td></td>

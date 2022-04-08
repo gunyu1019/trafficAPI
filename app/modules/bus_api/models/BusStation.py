@@ -73,10 +73,11 @@ class BusStation:
             pos_x = float(pos_x)
         if pos_y is not None:
             pos_y = float(pos_y)
+        print(payload)
         return cls(
             name=payload['BSTOPNM'],
             station_id1=int(payload['BSTOPID']),
-            station_id2=int(payload['SHORT_BSTOPID']),
+            station_id2=int(payload.get('SHORT_BSTOPID', 0)),
             pos_x=pos_x,
             pos_y=pos_y,
             st_type="INCHEON",
