@@ -1,9 +1,10 @@
 import os
 import re
 import datetime
+import pandas
+import math
 from typing import List
 
-import pandas
 from flask import Blueprint
 from flask import jsonify
 from flask import make_response
@@ -219,11 +220,18 @@ def around_info():
     for name in stations:
         try:
             data = metro_client.query(name=name, start_index=1, end_index=1000)
+            relative_pos_x = data[0].pos_x - pos_x
+            relative_pos_y = data[0].pos_y - pos_y
             result[name] = {
                 "distance": round(
                     haversine(data[0].pos_x, data[0].pos_y, pos_x, pos_y), 2
                 ),
-                "data": [x.to_dict_for_around() for x in data]
+                "data": [x.to_dict_for_around() for x in data],
+                "direction": int(
+                    round(math.atan2(relative_pos_x, relative_pos_y) * 180 / math.pi)
+                ),
+                "posX": data[0].pos_x,
+                "posY": data[0].pos_y
             }
         except EmptyData:
             continue

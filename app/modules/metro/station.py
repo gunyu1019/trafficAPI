@@ -99,8 +99,6 @@ class Station:
             "displayName": self.display_name,
             "code": self.code,
             "id": self.id,
-            "posX": self.pos_x,
-            "posY": self.pos_y,
             "subway": self.subway,
             "subwayId": self.subway_id
         }
