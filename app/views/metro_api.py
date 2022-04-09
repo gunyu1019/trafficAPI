@@ -163,7 +163,7 @@ def timetable_info():
     station_id = args['id']
     direction = args.get("direction", type=int, default=0) + 1
     week_type = args.get("weekType", type=int, default=default_week_type) + 1
-    if not(0 < direction < 4):
+    if not(0 < direction < 3):
         return make_response(
             jsonify({
                 "CODE": 400,
@@ -171,7 +171,7 @@ def timetable_info():
             }),
             400
         )
-    if not(0 < week_type < 3):
+    if not(0 < week_type < 4):
         return make_response(
             jsonify({
                 "CODE": 400,
