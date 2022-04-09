@@ -147,7 +147,7 @@ https://api.yhs.kr/bike/query
     </tr>
 </table>
 
-### /bike/around
+### /around
 
 좌표 값을 기준으로 주변에 있는 자전거 대여소 정보를 불러옵니다.
 
