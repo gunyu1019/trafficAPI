@@ -15,3 +15,6 @@
 # Documentation
 아래 링크를 클릭하여 본 API의 사용 방법을 알아보세요!
 * [한국어 문서](docs/)
+  * [수도권 버스 정류소/버스 도착 정보](docs/bus.md)
+  * [수도권 전철 역사/전철 도착 정보](docs/metro.md)
+  * [서울특별시 대여자전거 정보](docs/bike.md)
