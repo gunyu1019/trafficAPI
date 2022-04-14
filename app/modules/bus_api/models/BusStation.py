@@ -1,4 +1,5 @@
-from typing import Union, List
+from typing import Union, List, Dict, Any
+from app.utils import get_float, get_int
 
 
 class BusStation:
@@ -25,7 +26,7 @@ class BusStation:
         self.district = district
 
     @classmethod
-    def from_seoul(cls, payload: dict):
+    def from_seoul(cls, payload: Dict[str, Any]):
         pos_x = payload.get('tmX')
         pos_y = payload.get('tmY')
         if pos_x is not None:
@@ -42,7 +43,7 @@ class BusStation:
         )
 
     @classmethod
-    def from_gyeonggi(cls, payload: dict):
+    def from_gyeonggi(cls, payload: Dict[str, Any]):
         pos_x = payload.get('x')
         pos_y = payload.get('y')
         if pos_x is not None:
@@ -64,7 +65,7 @@ class BusStation:
     @classmethod
     def from_incheon(
             cls,
-            payload: dict,
+            payload: Dict[str, Any],
             _=None
     ):
         pos_x = payload.get('POSX')
@@ -85,6 +86,39 @@ class BusStation:
             region=payload.get('ADMINNM')
         )
 
+    @classmethod
+    def from_busan(cls, payload: Dict[str, Any]):
+        return cls(
+            name=payload['bstopnm'],
+            station_id1=get_int(payload['bstopid']),
+            station_id2=get_int(payload.get('arsno')),
+            pos_x=get_float(payload.get('gpsx')),
+            pos_y=get_float(payload.get('gpsy')),
+            st_type="BUSAN"
+        )
+
+    @classmethod
+    def from_ulsan(cls, payload: Dict[str, Any]):
+        return cls(
+            name=payload['bstopnm'],
+            station_id1=get_int(payload['bstopid']),
+            station_id2=get_int(payload.get('arsno')),
+            pos_x=get_float(payload.get('gpsx')),
+            pos_y=get_float(payload.get('gpsy')),
+            st_type="BUSAN"
+        )
+
+    @classmethod
+    def from_korea(cls, payload: Dict[str, Any], city_code: int):
+        return cls(
+            name=payload['nodenm'],
+            station_id1=payload['nodeid'],
+            station_id2=get_int(payload.get('nodeno')),
+            pos_x=get_float(payload.get('gpslong')),
+            pos_y=get_float(payload.get('gpslati')),
+            st_type=city_code
+        )
+
     def to_data(self) -> dict:
         if self.type == "SEOUL":
             final_id = self.id2
@@ -93,6 +127,7 @@ class BusStation:
 
         if isinstance(final_id, list):
             final_id = final_id[0]
+
         display_id = self.id2
         if display_id != 0:
             if isinstance(display_id, list):
@@ -105,7 +140,7 @@ class BusStation:
         return {
             "name": self.name,
             "id": final_id,
-            "type": ["SEOUL", "GYEONGGI", "INCHEON"].index(self.type) + 11,
+            "type": ["SEOUL", "GYEONGGI", "INCHEON", "BUSAN"].index(self.type) + 11 if isinstance(self.type, str) else self.type,
             "stationId": self.id1,
             "displayId": display_id,
             "posX": self.pos_x,

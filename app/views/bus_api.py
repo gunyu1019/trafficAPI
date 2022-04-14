@@ -1,15 +1,19 @@
-from typing import NamedTuple
+import os
 from collections import namedtuple
+from typing import NamedTuple
 
+import xmltodict
 from flask import Blueprint
 from flask import jsonify
 from flask import make_response
 from flask import request as req
 
+from app.arrival import get_incheon, get_gyeonggi
 from app.config.config import get_config
+from app.directory import directory
 from app.modules import bus_api
 from app.modules.bus_api.models.BusArrival import BusRouteInfo
-from app.arrival import get_incheon, get_gyeonggi
+from app.utils import haversine
 
 bp = Blueprint(
     name="bus_api",
@@ -26,6 +30,7 @@ class Token(NamedTuple):
     gyeonggi_arrival: str
     incheon_bis: str
     incheon_arrival: str
+    busan_bis: str
 
 
 parser = get_config()
@@ -36,8 +41,15 @@ token = Token(
     gyeonggi_bis=parser.get("token", "GyeonggiBIS"),
     gyeonggi_arrival=parser.get("token", "GyeonggiArrival"),
     incheon_bis=parser.get("token", "IncheonBIS"),
-    incheon_arrival=parser.get("token", "IncheonArrival")
+    incheon_arrival=parser.get("token", "IncheonArrival"),
+    busan_bis=parser.get("token", "BusanBIS")
 )
+
+with open(os.path.join(directory, "data", "ulsan_data.xml"), 'r', encoding='utf8') as fp:
+    ulsan_data = xmltodict.parse(fp.read())
+
+with open(os.path.join(directory, "data", "changwon_data.xml"), 'r', encoding='utf8') as fp:
+    changwon_data = xmltodict.parse(fp.read())
 
 
 @bp.route("/station", methods=['GET'])
@@ -54,14 +66,35 @@ def station_info():
     station_name = args.get('name')
     city_code = args.get('cityCode', default="1")
     if city_code == "11":
-        client = bus_api.SeoulBIS(token=token.seoul_bis)
-        result = client.get_station(name=station_name)
+        try:
+            client = bus_api.SeoulBIS(token=token.seoul_bis)
+            result = client.get_station(name=station_name)
+        except bus_api.EmptyData:
+            result = []
     elif city_code == "12":
-        client = bus_api.GyeonggiBIS(token=token.seoul_bis)
-        result = client.get_station(name=station_name)
+        try:
+            client = bus_api.GyeonggiBIS(token=token.seoul_bis)
+            result = client.get_station(name=station_name)
+        except bus_api.EmptyData:
+            result = []
     elif city_code == "13":
-        client = bus_api.IncheonBIS(token=token.seoul_bis)
-        result = client.get_station(name=station_name)
+        try:
+            client = bus_api.IncheonBIS(token=token.seoul_bis)
+            result = client.get_station(name=station_name)
+        except bus_api.EmptyData:
+            result = []
+    elif city_code == "13":
+        try:
+            client = bus_api.IncheonBIS(token=token.seoul_bis)
+            result = client.get_station(name=station_name)
+        except bus_api.EmptyData:
+            result = []
+    elif city_code == "14":
+        try:
+            client = bus_api.BusanBIS(token=token.seoul_bis)
+            result = client.get_station(name=station_name)
+        except bus_api.EmptyData:
+            result = []
     elif city_code == "1":
         client = [
             bus_api.SeoulBIS(token=token.seoul_bis),
@@ -94,6 +127,84 @@ def station_info():
                 else:
                     _list_ids.append(station.id1)
                     result.append(station)
+    elif city_code == "3":
+        client = [
+            (bus_api.BusanBIS(token=token.busan_bis), None),
+            (bus_api.KoreaBIS(token=token.korea_bis), 26),
+            (bus_api.KoreaBIS(token=token.korea_bis), 38100),
+            (bus_api.KoreaBIS(token=token.korea_bis), 38070)
+        ]
+        result = []
+        station_list = {}
+
+        for _client, _city_code in client:
+            try:
+                if _city_code is not None:
+                    _result = _client.get_station(name=station_name, city_code=_city_code)
+                else:
+                    _result = _client.get_station(name=station_name)
+            except bus_api.EmptyData:
+                continue
+
+            for station in _result:
+                if station.name not in station_list:
+                    station_list[station.name] = {}
+                if station.type not in station_list[station.name]:
+                    station_list[station.name][station.type] = []
+                station_list[station.name][station.type].append(station)
+            # for index, station in enumerate(_result):
+            #     if station.name in _list_names:
+            #         _list_names_index = _list_names.index(station.name)
+            #         position = _list_position[_list_names_index]
+            #         if haversine(position[0], position[1], station.pos_x, station.pos_y) < 25:
+            #             pass
+        for station in station_list.values():
+            if len(station.keys()) <= 1:
+                for _city_code in station.values():
+                    result += [x for x in _city_code]
+                continue
+            keys = list(station.keys())
+            # print(keys, station_list)
+
+            v_station = {}
+            for basic_station in station[keys[0]]:
+                v_station[basic_station.id] = {
+                    "station": [],
+                    "info": basic_station
+                }
+
+            for _city_code in keys[1:]:
+                _list_id = []
+                for basic_station in station[keys[0]]:
+                    min_distance = 500
+                    candidate = None
+                    for other_station in station[_city_code]:
+                        if other_station.id in _list_id:
+                            continue
+                        distance = haversine(
+                            basic_station.pos_x, basic_station.pos_y, other_station.pos_x, other_station.pos_y
+                        )
+                        if distance <= min_distance:
+                            min_distance = distance
+                            candidate = other_station
+                    _list_id.append(candidate.id)
+                    v_station[basic_station.id]["station"].append(candidate)
+
+            for basic_station in v_station.keys():
+                info: bus_api.BusStation = v_station[basic_station]['info']
+                for other_station in v_station[basic_station]["station"]:
+                    if not isinstance(info.id2, list):
+                        info.id2 = [info.id2]
+                    info.id2.append(other_station.id2)
+                    if isinstance(info.id1, int):
+                        info.id1 = str(info.id1)
+                    info.id1 += "-{}".format(other_station.id1)
+                result.append(info)
+        # result = client.get_station(name=station_name)
+        # _list_names = [x.name for x in result]
+        # for us_station in ulsan_data['tableInfo']['list']['row']:
+        #     if station_name not in us_station['STOPNAME']:
+        #         continue
     else:
         return make_response(
             jsonify({
