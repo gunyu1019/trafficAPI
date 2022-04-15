@@ -117,10 +117,10 @@ def station_info():
                         if station.id2 not in result[_index].id2:
                             result[_index].id2.append(station.id2)
                     else:
-                        if result[_index].id2 == 0:
+                        if int(result[_index].id2) == 0:
                             result[_index].id2 = station.id2
                             result[_index].type = station.type
-                        elif result[_index].id2 != station.id2 and station.id2 != 0:
+                        elif result[_index].id2 != station.id2 and int(station.id2) != 0:
                             result[_index].id2 = [
                                 result[_index].id2, station.id2
                             ]
@@ -152,19 +152,12 @@ def station_info():
                 if station.type not in station_list[station.name]:
                     station_list[station.name][station.type] = []
                 station_list[station.name][station.type].append(station)
-            # for index, station in enumerate(_result):
-            #     if station.name in _list_names:
-            #         _list_names_index = _list_names.index(station.name)
-            #         position = _list_position[_list_names_index]
-            #         if haversine(position[0], position[1], station.pos_x, station.pos_y) < 25:
-            #             pass
         for station in station_list.values():
             if len(station.keys()) <= 1:
                 for _city_code in station.values():
-                    result += [x for x in _city_code]
+                    result += _city_code
                 continue
             keys = list(station.keys())
-            # print(keys, station_list)
 
             v_station = {}
             for basic_station in station[keys[0]]:
@@ -187,6 +180,8 @@ def station_info():
                         if distance <= min_distance:
                             min_distance = distance
                             candidate = other_station
+                    if candidate is None:
+                        continue
                     _list_id.append(candidate.id)
                     v_station[basic_station.id]["station"].append(candidate)
 
@@ -196,15 +191,10 @@ def station_info():
                     if not isinstance(info.id2, list):
                         info.id2 = [info.id2]
                     info.id2.append(other_station.id2)
-                    if isinstance(info.id1, int):
-                        info.id1 = str(info.id1)
-                    info.id1 += "-{}".format(other_station.id1)
+                    info.id1 = -2
+                    info.id1s.append(other_station.id1)
+                    info.type = 99
                 result.append(info)
-        # result = client.get_station(name=station_name)
-        # _list_names = [x.name for x in result]
-        # for us_station in ulsan_data['tableInfo']['list']['row']:
-        #     if station_name not in us_station['STOPNAME']:
-        #         continue
     else:
         return make_response(
             jsonify({
@@ -296,10 +286,10 @@ def station_info_around():
                         if station.id2 not in result[_index].id2:
                             result[_index].id2.append(station.id2)
                     else:
-                        if result[_index].id2 == 0:
+                        if int(result[_index].id2) == 0:
                             result[_index].id2 = station.id2
                             result[_index].type = station.type
-                        elif result[_index].id2 != station.id2 and station.id2 != 0:
+                        elif result[_index].id2 != station.id2 and int(station.id2) != 0:
                             result[_index].id2 = [
                                 result[_index].id2, station.id2
                             ]

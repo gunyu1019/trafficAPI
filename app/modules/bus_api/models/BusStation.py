@@ -8,7 +8,7 @@ class BusStation:
             station_id1: Union[str, int],
             station_id2: Union[int, List[int]],
             name: str,
-            st_type: str,
+            st_type: Union[str, int],
             pos_x: float = None,
             pos_y: float = None,
             center: bool = None,
@@ -17,6 +17,7 @@ class BusStation:
     ):
         self.name = name
         self.id1 = self.id = station_id1
+        self.id1s = [str(self.id1)]
         self.id2 = station_id2
         self.pos_x = pos_x
         self.pos_y = pos_y
@@ -36,7 +37,7 @@ class BusStation:
         return cls(
             name=payload['stNm'],
             station_id1=int(payload['stId']),
-            station_id2=int(payload['arsId']),
+            station_id2=payload['arsId'],
             pos_x=pos_x,
             pos_y=pos_y,
             st_type="SEOUL"
@@ -53,7 +54,7 @@ class BusStation:
         return cls(
             name=payload['stationName'],
             station_id1=int(payload['stationId']),
-            station_id2=int(payload.get('mobileNo', 0)),
+            station_id2=payload.get('mobileNo', 0),
             pos_x=pos_x,
             pos_y=pos_y,
             st_type="GYEONGGI",
@@ -78,7 +79,7 @@ class BusStation:
         return cls(
             name=payload['BSTOPNM'],
             station_id1=int(payload['BSTOPID']),
-            station_id2=int(payload.get('SHORT_BSTOPID', 0)),
+            station_id2=payload.get('SHORT_BSTOPID', 0),
             pos_x=pos_x,
             pos_y=pos_y,
             st_type="INCHEON",
@@ -91,7 +92,7 @@ class BusStation:
         return cls(
             name=payload['bstopnm'],
             station_id1=get_int(payload['bstopid']),
-            station_id2=get_int(payload.get('arsno')),
+            station_id2=payload.get('arsno'),
             pos_x=get_float(payload.get('gpsx')),
             pos_y=get_float(payload.get('gpsy')),
             st_type="BUSAN"
@@ -102,7 +103,7 @@ class BusStation:
         return cls(
             name=payload['bstopnm'],
             station_id1=get_int(payload['bstopid']),
-            station_id2=get_int(payload.get('arsno')),
+            station_id2=payload.get('arsno'),
             pos_x=get_float(payload.get('gpsx')),
             pos_y=get_float(payload.get('gpsy')),
             st_type="BUSAN"
@@ -113,7 +114,7 @@ class BusStation:
         return cls(
             name=payload['nodenm'],
             station_id1=payload['nodeid'],
-            station_id2=get_int(payload.get('nodeno')),
+            station_id2=payload.get('nodeno'),
             pos_x=get_float(payload.get('gpslong')),
             pos_y=get_float(payload.get('gpslati')),
             st_type=city_code
@@ -137,12 +138,22 @@ class BusStation:
         else:
             display_id = None
 
-        return {
+        result = {
             "name": self.name,
             "id": final_id,
-            "type": ["SEOUL", "GYEONGGI", "INCHEON", "BUSAN"].index(self.type) + 11 if isinstance(self.type, str) else self.type,
+            "type": (
+                ["SEOUL", "GYEONGGI", "INCHEON", "BUSAN"].index(self.type) + 11
+                if isinstance(self.type, str)
+                else self.type
+            ),
             "stationId": self.id1,
             "displayId": display_id,
             "posX": self.pos_x,
             "posY": self.pos_y,
         }
+        if final_id == -2:
+            result['ids'] = ",".join(self.id1s)
+        if self.id1 == -2:
+            result['stationId'] = self.id1s
+
+        return result
