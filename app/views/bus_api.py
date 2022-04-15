@@ -128,21 +128,20 @@ def station_info():
                     _list_ids.append(station.id1)
                     result.append(station)
     elif city_code == "3":
+        city_key = ["BUSAN", 26, 38100, 38010, 38070]
         client = [
-            (bus_api.BusanBIS(token=token.busan_bis), None),
-            (bus_api.KoreaBIS(token=token.korea_bis), 26),
-            (bus_api.KoreaBIS(token=token.korea_bis), 38100),
-            (bus_api.KoreaBIS(token=token.korea_bis), 38070)
-        ]
+            bus_api.BusanBIS(token=token.busan_bis),
+            bus_api.KoreaBIS(token=token.korea_bis, city_code=city_key[1]),
+            bus_api.KoreaBIS(token=token.korea_bis, city_code=city_key[2]),
+            bus_api.KoreaBIS(token=token.korea_bis, city_code=city_key[3]),
+            bus_api.KoreaBIS(token=token.korea_bis, city_code=city_key[4])
+        ]  # 1 2 4 8 16
         result = []
         station_list = {}
 
-        for _client, _city_code in client:
+        for _client in client:
             try:
-                if _city_code is not None:
-                    _result = _client.get_station(name=station_name, city_code=_city_code)
-                else:
-                    _result = _client.get_station(name=station_name)
+                _result = _client.get_station(name=station_name)
             except bus_api.EmptyData:
                 continue
 
@@ -187,13 +186,14 @@ def station_info():
 
             for basic_station in v_station.keys():
                 info: bus_api.BusStation = v_station[basic_station]['info']
+                info.type = 200 + 2 ** (city_key.index(info.type))
                 for other_station in v_station[basic_station]["station"]:
                     if not isinstance(info.id2, list):
                         info.id2 = [info.id2]
                     info.id2.append(other_station.id2)
                     info.id1 = -2
                     info.id1s.append(other_station.id1)
-                    info.type = 99
+                    info.type += 2 ** (city_key.index(other_station.type))
                 result.append(info)
     else:
         return make_response(
@@ -342,13 +342,23 @@ def arrival_info():
     station_id = args['id']
     city_code = args.get('cityCode', type=int)
 
-    client_namedtuple = namedtuple('client', ['seoul', 'gyeonggi', 'incheon', 'gyeonggi_arrival', 'incheon_arrival'])
+    client_namedtuple = namedtuple(
+        'client', [
+            'seoul', 'gyeonggi', 'incheon', 'gyeonggi_arrival', 'incheon_arrival',
+            'busan', 'ulsan', 'yangsan', 'changwon', 'gimhae'
+        ]
+    )
     client = client_namedtuple(
         bus_api.SeoulBIS(token=token.seoul_bis),
         bus_api.GyeonggiBIS(token=token.gyeonggi_bis),
         bus_api.IncheonBIS(token=token.incheon_bis),
         bus_api.GyeonggiArrival(token=token.gyeonggi_arrival),
-        bus_api.IncheonArrival(token=token.incheon_arrival)
+        bus_api.IncheonArrival(token=token.incheon_arrival),
+        bus_api.BusanBIS(token=token.busan_bis),
+        bus_api.KoreaBIS(token=token.korea_bis, city_code=26),
+        bus_api.KoreaBIS(token=token.korea_bis, city_code=38100),
+        bus_api.KoreaBIS(token=token.korea_bis, city_code=38010),
+        bus_api.KoreaBIS(token=token.korea_bis, city_code=38070)
     )
 
     result = []
@@ -376,6 +386,25 @@ def arrival_info():
     elif city_code == 12 or city_code == 13:
         result = get_gyeonggi(client, station_id)
         result = get_incheon(client, station_id, result)
+    elif 200 < city_code < 264:
+        city_key = ['busan', 'ulsan', 'yangsan', 'changwon', 'gimhae']
+        station_ids = list(reversed(station_id.split(',')))
+        client_by_station_id = []
+        test_city_code = int(city_code) - 200
+        t = 0
+        for _, client_name in enumerate(reversed(city_key)):
+            index = city_key.index(client_name)
+            if test_city_code - 2 ** index >= 0:
+                test_city_code -= test_city_code - 2 ** index
+                _client = getattr(client, client_name)
+                client_by_station_id.append((2 ** index, station_ids[t]))
+                if test_city_code == 0:
+                    break
+                t += 1
+        client_by_station_id.reverse()
+        return jsonify(
+            client_by_station_id
+        )
     return jsonify([
         x.to_dict() for x in result
     ])
