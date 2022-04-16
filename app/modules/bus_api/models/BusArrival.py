@@ -1,5 +1,6 @@
 from typing import List, Optional
 from .BusRoute import BusRoute
+from .BusanArrival import BusanBusArrival
 from .SeoulArrival import SeoulBusArrival
 from .GyeonggiArrival import GyeonggiBusArrival
 from .IncheonArrival import IncheonBusArrival
@@ -96,6 +97,31 @@ class BusRouteInfo:
             }) for x in arrival
         ]
         return new_cls
+
+    @classmethod
+    def from_busan(cls, data: BusanBusArrival):
+        return cls(
+            name=data.name,
+            id=data.id,
+            type="40" + format(data.type, '02d'),
+            arrival_info=[
+                {
+                    "car_number": getattr(data, "car_number{0}".format(key), None),
+                    "seat": cls.convert_seat(
+                        getattr(data, "seat{0}".format(key), None)
+                    ),
+                    "type": getattr(data, "low_bus{0}".format(key)),
+                    "time": (
+                        getattr(data, "time{0}".format(key), None) * 60
+                        if getattr(data, "time{0}".format(key), None) is not None
+                        else None
+                    ),
+                    "prev_count": getattr(data, "prev_count{0}".format(key), 0),
+                    "is_arrival": getattr(data, "prev_count{0}".format(key), 0) <= 1,
+                    "lowBus": getattr(data, "low_bus{0}".format(key), 0)
+                } for key in range(1, 3) if getattr(data, "prev_count{0}".format(key), None) is not None
+            ]
+        )
 
     @staticmethod
     def convert_seat(people: int) -> Optional[int]:

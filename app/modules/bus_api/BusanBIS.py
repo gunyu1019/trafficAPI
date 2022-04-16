@@ -2,6 +2,7 @@ from app.modules.baseClient import BaseClient
 from .models.BusStation import BusStation
 from .models.BusRoute import BusRoute
 from .models.BusStationAround import BusStationAround
+from .models.BusanArrival import BusanBusArrival
 from app.modules.errors import *
 from app.utils import get_list_from_ordered_dict
 
@@ -34,3 +35,21 @@ class BusanBIS(BaseClient):
 
         item_list = body['item']
         return [BusStation.from_busan(x) for x in get_list_from_ordered_dict(item_list)]
+
+    def get_arrival(self, station_id: int):
+        data = self.get(
+            path="/6260000/BusanBIMS/stopArrByBstopid",
+            params={
+                "bstopid": station_id
+            }
+        )
+        result = data['response']
+
+        # HEAD AND BODY
+        head = result['header']
+        body = result['body']['items']
+        if body is None:
+            raise EmptyData()
+
+        item_list = body['item']
+        return [BusanBusArrival(x) for x in get_list_from_ordered_dict(item_list)]

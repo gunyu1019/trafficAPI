@@ -78,3 +78,14 @@ def get_incheon(client, station_id: str, result: list = None):
             BusRouteInfo.from_incheon(_route, _arrival)
         )
     return result
+
+
+def get_korea(client, station_id: str, result: list = None):
+    if result is None:
+        result = []
+
+    try:
+        route_data = client.get_route(station_id=station_id)
+    except bus_api.EmptyData:
+        return result
+    return

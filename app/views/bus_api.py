@@ -10,6 +10,7 @@ from flask import request as req
 
 from app.arrival import get_incheon, get_gyeonggi
 from app.config.config import get_config
+from app.conversion import conversion_metropolitan, conversion_others
 from app.directory import directory
 from app.modules import bus_api
 from app.modules.bus_api.models.BusArrival import BusRouteInfo
@@ -106,27 +107,15 @@ def station_info():
 
         for _client in client:
             try:
-                _result = _client.get_station(name=station_name)
+                client_result = _client.get_station(name=station_name)
             except bus_api.EmptyData:
                 continue
 
-            for index, station in enumerate(_result):
-                if station.id1 in _list_ids:
-                    _index = _list_ids.index(station.id1)
-                    if isinstance(result[_index].id2, list):
-                        if station.id2 not in result[_index].id2:
-                            result[_index].id2.append(station.id2)
-                    else:
-                        if int(result[_index].id2) == 0:
-                            result[_index].id2 = station.id2
-                            result[_index].type = station.type
-                        elif result[_index].id2 != station.id2 and int(station.id2) != 0:
-                            result[_index].id2 = [
-                                result[_index].id2, station.id2
-                            ]
-                else:
-                    _list_ids.append(station.id1)
-                    result.append(station)
+            _result, _exists_id = conversion_metropolitan(
+                client_result, _list_ids
+            )
+            result += _result
+            _list_ids += _exists_id
     elif city_code == "3":
         city_key = ["BUSAN", 26, 38100, 38010, 38070]
         client = [
@@ -136,7 +125,6 @@ def station_info():
             bus_api.KoreaBIS(token=token.korea_bis, city_code=city_key[3]),
             bus_api.KoreaBIS(token=token.korea_bis, city_code=city_key[4])
         ]  # 1 2 4 8 16
-        result = []
         station_list = {}
 
         for _client in client:
@@ -151,50 +139,8 @@ def station_info():
                 if station.type not in station_list[station.name]:
                     station_list[station.name][station.type] = []
                 station_list[station.name][station.type].append(station)
-        for station in station_list.values():
-            if len(station.keys()) <= 1:
-                for _city_code in station.values():
-                    result += _city_code
-                continue
-            keys = list(station.keys())
 
-            v_station = {}
-            for basic_station in station[keys[0]]:
-                v_station[basic_station.id] = {
-                    "station": [],
-                    "info": basic_station
-                }
-
-            for _city_code in keys[1:]:
-                _list_id = []
-                for basic_station in station[keys[0]]:
-                    min_distance = 500
-                    candidate = None
-                    for other_station in station[_city_code]:
-                        if other_station.id in _list_id:
-                            continue
-                        distance = haversine(
-                            basic_station.pos_x, basic_station.pos_y, other_station.pos_x, other_station.pos_y
-                        )
-                        if distance <= min_distance:
-                            min_distance = distance
-                            candidate = other_station
-                    if candidate is None:
-                        continue
-                    _list_id.append(candidate.id)
-                    v_station[basic_station.id]["station"].append(candidate)
-
-            for basic_station in v_station.keys():
-                info: bus_api.BusStation = v_station[basic_station]['info']
-                info.type = 200 + 2 ** (city_key.index(info.type))
-                for other_station in v_station[basic_station]["station"]:
-                    if not isinstance(info.id2, list):
-                        info.id2 = [info.id2]
-                    info.id2.append(other_station.id2)
-                    info.id1 = -2
-                    info.id1s.append(other_station.id1)
-                    info.type += 2 ** (city_key.index(other_station.type))
-                result.append(info)
+        result = conversion_others(station_list, city_key)
     else:
         return make_response(
             jsonify({
@@ -273,29 +219,17 @@ def station_info_around():
         for client_name in client:
             _client = getattr(bus_api, client_name)(token=token.seoul_bis)
             try:
-                _result = _client.get_station_around(
+                client_result = _client.get_station_around(
                     pos_x=pos_x, pos_y=pos_y
                 )
             except bus_api.EmptyData:
                 continue
 
-            for index, station in enumerate(_result):
-                if station.id1 in _list_ids:
-                    _index = _list_ids.index(station.id1)
-                    if isinstance(result[_index].id2, list):
-                        if station.id2 not in result[_index].id2:
-                            result[_index].id2.append(station.id2)
-                    else:
-                        if int(result[_index].id2) == 0:
-                            result[_index].id2 = station.id2
-                            result[_index].type = station.type
-                        elif result[_index].id2 != station.id2 and int(station.id2) != 0:
-                            result[_index].id2 = [
-                                result[_index].id2, station.id2
-                            ]
-                else:
-                    _list_ids.append(station.id1)
-                    result.append(station)
+            _result, _exists_id = conversion_metropolitan(
+                client_result, _list_ids
+            )
+            result += _result
+            _list_ids += _exists_id
     elif city_code == "11":
         client = bus_api.SeoulBIS(token=token.seoul_bis)
         result = client.get_station_around(pos_x=pos_x, pos_y=pos_y)
@@ -397,14 +331,18 @@ def arrival_info():
             if test_city_code - 2 ** index >= 0:
                 test_city_code -= test_city_code - 2 ** index
                 _client = getattr(client, client_name)
-                client_by_station_id.append((2 ** index, station_ids[t]))
+                client_by_station_id.append((_client, station_ids[t], city_key[index]))
                 if test_city_code == 0:
                     break
                 t += 1
         client_by_station_id.reverse()
-        return jsonify(
-            client_by_station_id
-        )
+        for client, _station_id, city_id in client_by_station_id:
+            _result = client.get_arrival(_station_id)
+            for route in _result:
+                if city_id == "busan":
+                    result.append(
+                        BusRouteInfo.from_busan(route)
+                    )
     return jsonify([
         x.to_dict() for x in result
     ])

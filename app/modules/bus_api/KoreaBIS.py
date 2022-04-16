@@ -39,3 +39,6 @@ class KoreaBIS(BaseClient):
 
         item_list = body['item']
         return [BusStation.from_korea(x, self.city_code) for x in get_list_from_ordered_dict(item_list)]
+
+    def get_arrival(self, station_id: int):
+        return []
