@@ -120,6 +120,17 @@ class BusStation:
             st_type=city_code
         )
 
+    @classmethod
+    def from_changwon(cls, payload: Dict[str, Any]):
+        return cls(
+            name=payload['name'],
+            station_id1=payload['id'],
+            station_id2=payload.get('displayId'),
+            pos_x=get_float(payload.get('posX')),
+            pos_y=get_float(payload.get('posY')),
+            st_type="CHANGWON"
+        )
+
     def to_data(self) -> dict:
         if self.type == "SEOUL":
             final_id = self.id2
@@ -142,7 +153,7 @@ class BusStation:
             "name": self.name,
             "id": final_id,
             "type": (
-                ["SEOUL", "GYEONGGI", "INCHEON", "BUSAN"].index(self.type) + 11
+                ["SEOUL", "GYEONGGI", "INCHEON", "BUSAN", "CHANGWON"].index(self.type) + 11
                 if isinstance(self.type, str)
                 else self.type
             ),

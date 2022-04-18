@@ -1,7 +1,8 @@
-from typing import Union, List
+from typing import Union, List, Dict, Any
 
 from .BusStation import BusStation
 from app.modules.errors import EmptyData
+from app.utils import get_float
 
 
 class BusStationAround(BusStation):
@@ -32,7 +33,7 @@ class BusStationAround(BusStation):
         self.distance = distance
 
     @classmethod
-    def from_seoul(cls, payload: dict):
+    def from_seoul(cls, payload: Dict[str, Any]):
         pos_x = payload.get('gpsX')
         pos_y = payload.get('gpsY')
         if pos_x is not None:
@@ -50,7 +51,7 @@ class BusStationAround(BusStation):
         )
 
     @classmethod
-    def from_gyeonggi(cls, payload: dict):
+    def from_gyeonggi(cls, payload: Dict[str, Any]):
         pos_x = payload.get('x')
         pos_y = payload.get('y')
         if pos_x is not None:
@@ -73,7 +74,7 @@ class BusStationAround(BusStation):
     @classmethod
     def from_incheon(
             cls,
-            payload: dict,
+            payload: Dict[str, Any],
             client=None
     ):
         pos_x = payload.get('LNG')
@@ -103,6 +104,21 @@ class BusStationAround(BusStation):
             center=center,
             region=region,
             distance=int(payload.get("DISTANCE", 0))
+        )
+
+    @classmethod
+    def from_changwon(
+            cls,
+            payload: Dict[str, Any]
+    ):
+        return cls(
+            name=payload['name'],
+            station_id1=payload['id'],
+            station_id2=payload.get('displayId'),
+            pos_x=get_float(payload.get('posX')),
+            pos_y=get_float(payload.get('posY')),
+            st_type="CHANGWON",
+            distance=int(payload.get("distance", 0))
         )
 
     def to_data(self) -> dict:

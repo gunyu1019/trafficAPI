@@ -49,9 +49,6 @@ token = Token(
 with open(os.path.join(directory, "data", "ulsan_data.xml"), 'r', encoding='utf8') as fp:
     ulsan_data = xmltodict.parse(fp.read())
 
-with open(os.path.join(directory, "data", "changwon_data.xml"), 'r', encoding='utf8') as fp:
-    changwon_data = xmltodict.parse(fp.read())
-
 
 @bp.route("/station", methods=['GET'])
 def station_info():
@@ -340,9 +337,7 @@ def arrival_info():
             _result = client.get_arrival(_station_id)
             for route in _result:
                 if city_id == "busan":
-                    result.append(
-                        BusRouteInfo.from_busan(route)
-                    )
+                    result.append(BusRouteInfo.from_busan(route))
     return jsonify([
         x.to_dict() for x in result
     ])
