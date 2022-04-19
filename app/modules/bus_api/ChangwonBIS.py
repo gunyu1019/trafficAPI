@@ -13,7 +13,7 @@ from app.utils import haversine
 
 
 class ChangwonBIS(BaseClient):
-    def __init__(self, token: str):
+    def __init__(self, token: str, arrival_token: str):
         super().__init__("http://openapi.changwon.go.kr")
         self.token = token
 

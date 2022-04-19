@@ -18,7 +18,7 @@ def get_gyeonggi(client, station_id: str, result: list = None):
 
     arrival_data = []
     try:
-        arrival_data = client.gyeonggi_arrival.get_arrival(station_id=station_id)
+        arrival_data = client.gyeonggi.get_arrival(station_id=station_id)
     except bus_api.EmptyData:
         pass
 
@@ -55,7 +55,7 @@ def get_incheon(client, station_id: str, result: list = None):
 
     arrival_data = []
     try:
-        arrival_data = client.incheon_arrival.get_arrival(station_id=station_id)
+        arrival_data = client.incheon.get_arrival(station_id=station_id)
     except bus_api.EmptyData:
         pass
     for route in route_data:

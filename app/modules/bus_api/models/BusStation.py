@@ -75,7 +75,6 @@ class BusStation:
             pos_x = float(pos_x)
         if pos_y is not None:
             pos_y = float(pos_y)
-        print(payload)
         return cls(
             name=payload['BSTOPNM'],
             station_id1=int(payload['BSTOPID']),

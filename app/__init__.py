@@ -8,6 +8,7 @@ from app.directory import directory
 
 def create_app():
     app = Flask(__name__)
+    environment = app.config.get("ENV")
     app.config['JSON_AS_ASCII'] = False
     log = logging.getLogger("app.create_app")
 
@@ -27,7 +28,8 @@ def create_app():
             spec.loader.exec_module(lib)  # type: ignore
         except Exception as e:
             log.error("Extension Failed: {0} ({1})".format(view, e.__class__.__name__))
-            raise e
+            if environment == "development":
+                raise e
             continue
 
         try:
@@ -40,6 +42,8 @@ def create_app():
             app.register_blueprint(blueprint)
         except Exception as e:
             log.error("Extension Failed: {0} ({1})".format(view, e.__class__.__name__))
+            if environment == "development":
+                raise e
             continue
 
     return app

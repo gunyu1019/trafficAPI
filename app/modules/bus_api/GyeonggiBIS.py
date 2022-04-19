@@ -2,18 +2,20 @@ from app.modules.baseClient import BaseClient
 from .models.BusStation import BusStation
 from .models.BusRoute import BusRoute
 from .models.BusStationAround import BusStationAround
+from .models.GyeonggiArrival import GyeonggiBusArrival
 from app.modules.errors import *
 from app.utils import get_list_from_ordered_dict
 
 
 class GyeonggiBIS(BaseClient):
-    def __init__(self, token: str):
+    def __init__(self, token: str, arrival_token: str = None):
         super().__init__("http://apis.data.go.kr")
         self.token = token
+        self.arrival_token = arrival_token or token
 
-    def request(self, **kwargs):
+    def request(self, arrival_token: bool = False, **kwargs):
         params = {
-            'serviceKey': self.token
+            'serviceKey': self.token if not arrival_token else self.arrival_token
         }
         return super(GyeonggiBIS, self).request(_default_params=params, _default_xml=True, **kwargs)
 
@@ -27,7 +29,7 @@ class GyeonggiBIS(BaseClient):
         result = data['response']
 
         # HEAD AND BODY
-        head = result['msgHeader']
+        _ = result['msgHeader']
         if 'msgBody' not in result:
             raise EmptyData()
         body = result['msgBody']
@@ -50,7 +52,7 @@ class GyeonggiBIS(BaseClient):
         result = data['response']
 
         # HEAD AND BODY
-        head = result['msgHeader']
+        _ = result['msgHeader']
         if 'msgBody' not in result:
             raise EmptyData()
         body = result['msgBody']
@@ -68,10 +70,29 @@ class GyeonggiBIS(BaseClient):
         result = data['response']
 
         # HEAD AND BODY
-        head = result['msgHeader']
+        _ = result['msgHeader']
         if 'msgBody' not in result:
             raise EmptyData()
         body = result['msgBody']
 
         item_list = body['busRouteList']
         return [BusRoute.from_gyeonggi(x) for x in get_list_from_ordered_dict(item_list)]
+
+    def get_arrival(self, station_id: str):
+        data = self.get(
+            path="/6410000/busarrivalservice/getBusArrivalList",
+            params={
+                "stationId": station_id
+            },
+            arrival_token=True
+        )
+        result = data['response']
+
+        # HEAD AND BODY
+        _ = result['msgHeader']
+        if 'msgBody' not in result:
+            raise EmptyData()
+        body = result['msgBody']
+
+        item_list = body['busArrivalList']
+        return [GyeonggiBusArrival(x) for x in get_list_from_ordered_dict(item_list)]

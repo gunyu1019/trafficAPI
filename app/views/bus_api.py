@@ -71,33 +71,27 @@ def station_info():
             result = []
     elif city_code == "12":
         try:
-            client = bus_api.GyeonggiBIS(token=token.seoul_bis)
+            client = bus_api.GyeonggiBIS(token=token.gyeonggi_bis, arrival_token=token.gyeonggi_arrival)
             result = client.get_station(name=station_name)
         except bus_api.EmptyData:
             result = []
     elif city_code == "13":
         try:
-            client = bus_api.IncheonBIS(token=token.seoul_bis)
-            result = client.get_station(name=station_name)
-        except bus_api.EmptyData:
-            result = []
-    elif city_code == "13":
-        try:
-            client = bus_api.IncheonBIS(token=token.seoul_bis)
+            client = bus_api.IncheonBIS(token=token.incheon_bis, arrival_token=token.incheon_arrival)
             result = client.get_station(name=station_name)
         except bus_api.EmptyData:
             result = []
     elif city_code == "14":
         try:
-            client = bus_api.BusanBIS(token=token.seoul_bis)
+            client = bus_api.BusanBIS(token=token.busan_bis)
             result = client.get_station(name=station_name)
         except bus_api.EmptyData:
             result = []
     elif city_code == "1":
         client = [
             bus_api.SeoulBIS(token=token.seoul_bis),
-            bus_api.GyeonggiBIS(token=token.seoul_bis),
-            bus_api.IncheonBIS(token=token.seoul_bis)
+            bus_api.GyeonggiBIS(token=token.gyeonggi_bis, arrival_token=token.gyeonggi_arrival),
+            bus_api.IncheonBIS(token=token.incheon_bis, arrival_token=token.incheon_arrival)
         ]
         result = []
         _list_ids = []
@@ -108,10 +102,9 @@ def station_info():
             except bus_api.EmptyData:
                 continue
 
-            _result, _exists_id = conversion_metropolitan(
-                client_result, _list_ids
+            result, _exists_id = conversion_metropolitan(
+                client_result, _list_ids, result
             )
-            result += _result
             _list_ids += _exists_id
     elif city_code == "3":
         city_key = ["BUSAN", 26, 38100, 38010, 38070]
@@ -222,19 +215,18 @@ def station_info_around():
             except bus_api.EmptyData:
                 continue
 
-            _result, _exists_id = conversion_metropolitan(
-                client_result, _list_ids
+            result, _exists_id = conversion_metropolitan(
+                client_result, _list_ids, result
             )
-            result += _result
             _list_ids += _exists_id
     elif city_code == "11":
         client = bus_api.SeoulBIS(token=token.seoul_bis)
         result = client.get_station_around(pos_x=pos_x, pos_y=pos_y)
     elif city_code == "12":
-        client = bus_api.GyeonggiBIS(token=token.seoul_bis)
+        client = bus_api.GyeonggiBIS(token=token.gyeonggi_bis)
         result = client.get_station_around(pos_x=pos_x, pos_y=pos_y)
     elif city_code == "13":
-        client = bus_api.IncheonBIS(token=token.seoul_bis)
+        client = bus_api.IncheonBIS(token=token.gyeonggi_bis)
         result = client.get_station_around(pos_x=pos_x, pos_y=pos_y)
     else:
         return make_response(
@@ -275,16 +267,14 @@ def arrival_info():
 
     client_namedtuple = namedtuple(
         'client', [
-            'seoul', 'gyeonggi', 'incheon', 'gyeonggi_arrival', 'incheon_arrival',
+            'seoul', 'gyeonggi', 'incheon',
             'busan', 'ulsan', 'yangsan', 'changwon', 'gimhae'
         ]
     )
     client = client_namedtuple(
         bus_api.SeoulBIS(token=token.seoul_bis),
-        bus_api.GyeonggiBIS(token=token.gyeonggi_bis),
-        bus_api.IncheonBIS(token=token.incheon_bis),
-        bus_api.GyeonggiArrival(token=token.gyeonggi_arrival),
-        bus_api.IncheonArrival(token=token.incheon_arrival),
+        bus_api.GyeonggiBIS(token=token.gyeonggi_bis, arrival_token=token.gyeonggi_arrival),
+        bus_api.IncheonBIS(token=token.incheon_bis, arrival_token=token.incheon_arrival),
         bus_api.BusanBIS(token=token.busan_bis),
         bus_api.KoreaBIS(token=token.korea_bis, city_code=26),
         bus_api.KoreaBIS(token=token.korea_bis, city_code=38100),
@@ -305,14 +295,14 @@ def arrival_info():
                 result.append(
                     BusRouteInfo.from_seoul(bus)
                 )
-            elif bus.bus_type == 8 and client.gyeonggi_arrival not in override:
-                override.append(client.gyeonggi_arrival)
-            elif bus.bus_type == 7 and client.incheon_arrival not in override:
-                override.append(client.incheon_arrival)
+            elif bus.bus_type == 8 and client.gyeonggi not in override:
+                override.append(client.gyeonggi)
+            elif bus.bus_type == 7 and client.incheon not in override:
+                override.append(client.incheon)
 
-        if client.gyeonggi_arrival in override:
+        if client.gyeonggi in override:
             result = get_gyeonggi(client, _station_ids, result)
-        if client.incheon_arrival in override:
+        if client.incheon in override:
             result = get_incheon(client, _station_ids, result)
     elif city_code == 12 or city_code == 13:
         result = get_gyeonggi(client, station_id)
