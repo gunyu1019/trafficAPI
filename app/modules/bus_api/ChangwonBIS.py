@@ -6,7 +6,7 @@ from app.modules.baseClient import BaseClient
 from .models.BusStation import BusStation
 from .models.BusRoute import BusRoute
 from .models.BusStationAround import BusStationAround
-from .models.BusanArrival import BusanBusArrival
+from .models.ChangwonArrival import ChangwonBusArrival
 from app.directory import directory
 from app.modules.errors import *
 from app.utils import haversine, get_list_from_ordered_dict
@@ -117,4 +117,4 @@ class ChangwonBIS(BaseClient):
             raise EmptyData()
 
         item_list = body['row']
-        return [BusanBusArrival(x) for x in get_list_from_ordered_dict(item_list)]
+        return [ChangwonBusArrival(x) for x in get_list_from_ordered_dict(item_list)]
