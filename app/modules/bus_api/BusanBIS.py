@@ -28,7 +28,7 @@ class BusanBIS(BaseClient):
         result = data['response']
 
         # HEAD AND BODY
-        head = result['header']
+        _ = result['header']
         body = result['body']['items']
         if body is None:
             raise EmptyData()
@@ -46,7 +46,7 @@ class BusanBIS(BaseClient):
         result = data['response']
 
         # HEAD AND BODY
-        head = result['header']
+        _ = result['header']
         body = result['body']['items']
         if body is None:
             raise EmptyData()
