@@ -312,11 +312,11 @@ def arrival_info():
         result = get_gyeonggi(client, station_id)
         result = get_incheon(client, station_id, result)
     elif 200 < city_code < 264:
-        city_key = ['busan', 'ulsan', 'yangsan', 'changwon', 'gimhae']
+        city_key = ['busan', 'ulsan', 'changwon', 'gimhae']
         bus_type_dictionary = {
             "gimhae": {"지선버스": 1, "급행버스": 2}
         }
-        prefix_route = [21, 22, 23, 24, 25]
+        prefix_route = [21, 22, 24, 25]
         station_ids = list(reversed(station_id.split(',')))
         client_by_station_id = []
         test_city_code = int(city_code) - 200
