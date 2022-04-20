@@ -8,7 +8,7 @@ from flask import jsonify
 from flask import make_response
 from flask import request as req
 
-from app.arrival import get_incheon, get_gyeonggi, get_changwon
+from app.arrival import get_incheon, get_gyeonggi, get_changwon, get_korea
 from app.config.config import get_config
 from app.conversion import conversion_metropolitan, conversion_others
 from app.directory import directory
@@ -111,12 +111,12 @@ def station_info():
             )
             _list_ids += _exists_id
     elif city_code == "3":
-        city_key = ["BUSAN", 26, 38100, 38010, 38070]
+        city_key = ["BUSAN", 26, 38100, "CHANGWON", 38070]
         client = [
             bus_api.BusanBIS(token=token.busan_bis),
             bus_api.KoreaBIS(token=token.korea_bis, city_code=city_key[1]),
             bus_api.KoreaBIS(token=token.korea_bis, city_code=city_key[2]),
-            bus_api.KoreaBIS(token=token.korea_bis, city_code=city_key[3]),
+            bus_api.ChangwonBIS(token=token.changwon_bis, arrival_token=token.changwon_arrival),
             bus_api.KoreaBIS(token=token.korea_bis, city_code=city_key[4])
         ]  # 1 2 4 8 16
         station_list = {}
@@ -313,6 +313,10 @@ def arrival_info():
         result = get_incheon(client, station_id, result)
     elif 200 < city_code < 264:
         city_key = ['busan', 'ulsan', 'yangsan', 'changwon', 'gimhae']
+        bus_type_dictionary = {
+            "gimhae": {"지선버스": 1, "급행버스": 2}
+        }
+        prefix_route = [21, 22, 23, 24, 25]
         station_ids = list(reversed(station_id.split(',')))
         client_by_station_id = []
         test_city_code = int(city_code) - 200
@@ -328,7 +332,17 @@ def arrival_info():
                 t += 1
         client_by_station_id.reverse()
         for client, _station_id, city_id in client_by_station_id:
-            _result = client.get_arrival(_station_id)
+            try:
+                _result = client.get_arrival(_station_id)
+            except bus_api.EmptyData:
+                _result = []
+
+            if city_id not in ["busan", "changwon"]:
+                index = city_key.index(city_id)
+                route_data = client.get_route(_station_id, bus_type_dictionary[city_id])
+                result += get_korea(_result, route_data, prefix_route[index])
+                continue
+
             for route in _result:
                 if city_id == "busan":
                     result.append(BusRouteInfo.from_busan(route))

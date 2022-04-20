@@ -32,7 +32,7 @@ def conversion_metropolitan(
             exists_id.append(station.id1)
             result.append(station)
     return (
-        pre_data, exists_id
+        result, exists_id
     )
 
 
@@ -86,7 +86,9 @@ def conversion_others(
             for other_station in v_station[basic_station]["station"]:
                 if not isinstance(info.id2, list):
                     info.id2 = [info.id2]
-                info.id2.append(other_station.id2)
+
+                if other_station.id2 is not None:
+                    info.id2.append(other_station.id2)
                 info.id1 = -2
                 info.id1s.append(other_station.id1)
                 info.type += 2 ** (city_key.index(other_station.type))

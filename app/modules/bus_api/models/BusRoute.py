@@ -1,3 +1,4 @@
+from typing import Dict, Any, List
 from app.utils import get_int
 
 
@@ -21,7 +22,7 @@ class BusRoute:
         self.order = order
 
     @classmethod
-    def from_gyeonggi(cls, payload: dict):
+    def from_gyeonggi(cls, payload: Dict[str, Any]):
         return cls(
             bus_id=payload['routeId'],
             bus_name=payload['routeName'],
@@ -33,7 +34,7 @@ class BusRoute:
         )
 
     @classmethod
-    def from_incheon(cls, payload: dict):
+    def from_incheon(cls, payload: Dict[str, Any]):
         bus_type_name = ["정보 없음", "지선", "간선", "좌석", "광역", "리무진", "마을버스", "순환형", "급행간선", "지선(순환)"]
         bus_type = get_int(payload['ROUTETPCD'])
         return cls(
@@ -42,4 +43,15 @@ class BusRoute:
             bus_type=bus_type,
             bus_type_name=bus_type_name[bus_type],
             order=int(payload['PATHSEQ'])
+        )
+
+    @classmethod
+    def from_korea(cls, payload: Dict[str, Any], bus_type: Dict[str, int]):
+        bus_type_name = payload['routetp']
+        print(bus_type_name)
+        return cls(
+            bus_id=payload['routeid'],
+            bus_name=payload['routeno'],
+            bus_type=bus_type.get(bus_type_name),
+            bus_type_name=bus_type_name
         )

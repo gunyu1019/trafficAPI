@@ -6,7 +6,7 @@ class BusStation:
     def __init__(
             self,
             station_id1: Union[str, int],
-            station_id2: Union[int, List[int]],
+            station_id2: Union[str, List[str]],
             name: str,
             st_type: Union[str, int],
             pos_x: float = None,
@@ -113,7 +113,7 @@ class BusStation:
         return cls(
             name=payload['nodenm'],
             station_id1=payload['nodeid'],
-            station_id2=payload.get('nodeno'),
+            station_id2=str(payload.get('nodeno')),
             pos_x=get_float(payload.get('gpslong')),
             pos_y=get_float(payload.get('gpslati')),
             st_type=city_code
@@ -139,15 +139,6 @@ class BusStation:
         if isinstance(final_id, list):
             final_id = final_id[0]
 
-        display_id = self.id2
-        if display_id != 0:
-            if isinstance(display_id, list):
-                display_id = [str(station_id).zfill(5) for station_id in self.id2]
-            else:
-                display_id = str(display_id).zfill(5)
-        else:
-            display_id = None
-
         result = {
             "name": self.name,
             "id": final_id,
@@ -157,7 +148,7 @@ class BusStation:
                 else self.type
             ),
             "stationId": self.id1,
-            "displayId": display_id,
+            "displayId": self.id2 if self.id2 != 0 else None,
             "posX": self.pos_x,
             "posY": self.pos_y,
         }

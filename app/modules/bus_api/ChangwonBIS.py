@@ -14,7 +14,7 @@ from app.utils import haversine, get_list_from_ordered_dict
 
 
 class ChangwonBIS(BaseClient):
-    def __init__(self, token: str, arrival_token: str):
+    def __init__(self, token: str, arrival_token: str = None):
         super().__init__("http://openapi.changwon.go.kr")
         self.token = token
         self.arrival_token = arrival_token or token
@@ -82,7 +82,7 @@ class ChangwonBIS(BaseClient):
             ])
 
     def get_station(self, name: str):
-        data = self._get_station_data()
+        data = self.get_station_data()
         result = data[data['name'].str.contains(name)].to_dict('records')
         return [BusStation.from_changwon(x) for x in result]
 
@@ -92,7 +92,7 @@ class ChangwonBIS(BaseClient):
             pos_y: float,
             radius: int = 500
     ):
-        data = self._get_data().to_dict('records')
+        data = self.get_station_data().to_dict('records')
         result = []
         for station in data:
             station['distance'] = haversine(station['posX'], station['posY'], pos_x, pos_y)

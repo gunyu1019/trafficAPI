@@ -4,6 +4,7 @@ from .BusanArrival import BusanBusArrival
 from .ChangwonArrival import ChangwonBusArrival
 from .SeoulArrival import SeoulBusArrival
 from .GyeonggiArrival import GyeonggiBusArrival
+from .KoreaArrival import KoreaBusArrival
 from .IncheonArrival import IncheonBusArrival
 
 
@@ -137,8 +138,28 @@ class BusRouteInfo:
                     "prev_count": data.prev_count,
                     "is_arrival": data.prev_count <= 1
                 }
-            ]
+            ] if data.status else []
         )
+
+    @classmethod
+    def from_korea(cls, route: BusRoute, arrival: List[KoreaBusArrival], type_prefix: int):
+        new_cls = cls(
+            name=route.name,
+            id=route.id,
+            type=str(type_prefix) + format(route.type, '02d'),
+            arrival_info=[]
+        )
+        new_cls.arrival_info = [
+            BusArrivalInfo(**{
+                "type": int(x.low_bus),
+                "time": x.time,
+                "prev_count": x.prev_count,
+                "is_arrival": x.prev_count <= 1
+                if isinstance(x.prev_count, int)
+                else False
+            }) for x in arrival
+        ]
+        return new_cls
 
     @staticmethod
     def convert_seat(people: int) -> Optional[int]:
