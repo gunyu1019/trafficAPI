@@ -1,6 +1,7 @@
 import pandas
 import xmltodict
 import os
+from urllib import parse
 
 from app.modules.baseClient import BaseClient
 from .models.BusStation import BusStation
@@ -35,7 +36,7 @@ class ChangwonBIS(BaseClient):
         }
         return super(ChangwonBIS, self).request(_default_params=params, _default_xml=True, **kwargs)
 
-    def _get_station_data(self):
+    def get_station_data(self):
         rows = []
         for station in self._station_data['ServiceResult']['MsgBody']['StationList']['row']:
             name = station.get("STATION_NM")
@@ -50,9 +51,9 @@ class ChangwonBIS(BaseClient):
             })
         return pandas.DataFrame(rows, columns=['id', 'name', 'posX', 'posY', 'displayId'])
 
-    def _get_bus_data(self):
+    def get_bus_data(self):
         rows = []
-        for station in self._station_data['ServiceResult']['MsgBody']['BusList']['row']:
+        for station in self._bus_data['ServiceResult']['MsgBody']['BusList']['row']:
             rows.append({
                 "id": station.get("ROUTE_ID"),
                 "displayName": station.get("ROUTE_NM"),
@@ -103,10 +104,11 @@ class ChangwonBIS(BaseClient):
 
     def get_arrival(self, station_id: int):
         data = self.get(
-            path="/rest/bis/BusArrives",
+            path="/rest/bis/BusArrives/",
             params={
                 "station": station_id
-            }
+            },
+            arrival_token=True
         )
         result = data['ServiceResult']
 

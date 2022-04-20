@@ -1,6 +1,7 @@
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from .BusRoute import BusRoute
 from .BusanArrival import BusanBusArrival
+from .ChangwonArrival import ChangwonBusArrival
 from .SeoulArrival import SeoulBusArrival
 from .GyeonggiArrival import GyeonggiBusArrival
 from .IncheonArrival import IncheonBusArrival
@@ -22,7 +23,7 @@ class BusRouteInfo:
         return cls(
             name=data.name,
             id=data.id,
-            type="10" + format(data.bus_type, '02d'),
+            type="11" + format(data.bus_type, '02d'),
             is_end="운행종료" == data.msg1,
             is_wait="출발대기" == data.msg1 and "회차대기" == data.msg1,
             arrival_info=[
@@ -48,7 +49,7 @@ class BusRouteInfo:
         return cls(
             name=route.name,
             id=route.id,
-            type="20" + format(route.type, '02d'),
+            type="12" + format(route.type, '02d'),
             is_end="STOP" == flag,
             is_wait="WAIT" == flag,
             arrival_info=[
@@ -77,7 +78,7 @@ class BusRouteInfo:
         new_cls = cls(
             name=route.name,
             id=route.id,
-            type="30" + format(route.type, '02d'),
+            type="13" + format(route.type, '02d'),
             arrival_info=[]
         )
         new_cls.arrival_info = [
@@ -103,7 +104,7 @@ class BusRouteInfo:
         return cls(
             name=data.name,
             id=data.id,
-            type="40" + format(data.type, '02d'),
+            type="21" + format(data.type, '02d'),
             arrival_info=[
                 {
                     "car_number": getattr(data, "car_number{0}".format(key), None),
@@ -120,6 +121,22 @@ class BusRouteInfo:
                     "is_arrival": getattr(data, "prev_count{0}".format(key), 0) <= 1,
                     "lowBus": getattr(data, "low_bus{0}".format(key), 0)
                 } for key in range(1, 3) if getattr(data, "prev_count{0}".format(key), None) is not None
+            ]
+        )
+
+    @classmethod
+    def from_changwon(cls, data: ChangwonBusArrival, route: Dict[str, Any], route_type: int):
+        return cls(
+            name=route['name'],
+            id=data.id,
+            type="22" + format(route_type, '02d'),
+            arrival_info=[
+                {
+                    "type": None,
+                    "time": data.time,
+                    "prev_count": data.prev_count,
+                    "is_arrival": data.prev_count <= 1
+                }
             ]
         )
 

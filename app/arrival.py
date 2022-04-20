@@ -2,6 +2,7 @@ from app.modules import bus_api
 from app.modules.bus_api.models.BusArrival import BusRouteInfo
 from app.modules.bus_api.models.GyeonggiArrival import GyeonggiBusArrival
 from app.modules.bus_api.models.IncheonArrival import IncheonBusArrival
+from app.modules.bus_api.models.ChangwonArrival import ChangwonBusArrival
 
 
 def get_gyeonggi(client, station_id: str, result: list = None):
@@ -88,4 +89,20 @@ def get_korea(client, station_id: str, result: list = None):
         route_data = client.get_route(station_id=station_id)
     except bus_api.EmptyData:
         return result
-    return
+    return result
+
+
+def get_changwon(client: bus_api.ChangwonBIS, arrival_data: ChangwonBusArrival):
+    bus_data = client.get_bus_data()
+
+    route = bus_data[bus_data['id'] == arrival_data.id].to_dict('records')[0]
+    if route['color'] == 2:
+        route_type = 1
+    elif route['color'] == 5:
+        route_type = 3
+    elif route['color'] == 8:
+        route_type = 4
+    else:
+        route_type = 2
+
+    return BusRouteInfo.from_changwon(arrival_data, route, route_type)

@@ -44,7 +44,6 @@ class BaseClient:
                 result = json.loads(result)
             else:
                 result = xmltodict.parse(response.content.decode('utf-8'))
-
         return result
 
     def get(self, path: str, **kwargs):

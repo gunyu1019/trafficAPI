@@ -8,7 +8,7 @@ from flask import jsonify
 from flask import make_response
 from flask import request as req
 
-from app.arrival import get_incheon, get_gyeonggi
+from app.arrival import get_incheon, get_gyeonggi, get_changwon
 from app.config.config import get_config
 from app.conversion import conversion_metropolitan, conversion_others
 from app.directory import directory
@@ -32,6 +32,8 @@ class Token(NamedTuple):
     incheon_bis: str
     incheon_arrival: str
     busan_bis: str
+    changwon_bis: str
+    changwon_arrival: str
 
 
 parser = get_config()
@@ -43,7 +45,9 @@ token = Token(
     gyeonggi_arrival=parser.get("token", "GyeonggiArrival"),
     incheon_bis=parser.get("token", "IncheonBIS"),
     incheon_arrival=parser.get("token", "IncheonArrival"),
-    busan_bis=parser.get("token", "BusanBIS")
+    busan_bis=parser.get("token", "BusanBIS"),
+    changwon_bis=parser.get("token", "ChangwonBIS"),
+    changwon_arrival=parser.get("token", "ChangwonArrival"),
 )
 
 with open(os.path.join(directory, "data", "ulsan_data.xml"), 'r', encoding='utf8') as fp:
@@ -278,7 +282,7 @@ def arrival_info():
         bus_api.BusanBIS(token=token.busan_bis),
         bus_api.KoreaBIS(token=token.korea_bis, city_code=26),
         bus_api.KoreaBIS(token=token.korea_bis, city_code=38100),
-        bus_api.KoreaBIS(token=token.korea_bis, city_code=38010),
+        bus_api.ChangwonBIS(token=token.changwon_bis, arrival_token=token.changwon_arrival),
         bus_api.KoreaBIS(token=token.korea_bis, city_code=38070)
     )
 
@@ -316,7 +320,7 @@ def arrival_info():
         for _, client_name in enumerate(reversed(city_key)):
             index = city_key.index(client_name)
             if test_city_code - 2 ** index >= 0:
-                test_city_code -= test_city_code - 2 ** index
+                test_city_code -= 2 ** index
                 _client = getattr(client, client_name)
                 client_by_station_id.append((_client, station_ids[t], city_key[index]))
                 if test_city_code == 0:
@@ -328,6 +332,8 @@ def arrival_info():
             for route in _result:
                 if city_id == "busan":
                     result.append(BusRouteInfo.from_busan(route))
+                elif city_id == "changwon":
+                    result.append(get_changwon(client, route))
     return jsonify([
         x.to_dict() for x in result
     ])
