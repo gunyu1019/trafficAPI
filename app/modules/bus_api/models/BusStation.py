@@ -100,12 +100,12 @@ class BusStation:
     @classmethod
     def from_ulsan(cls, payload: Dict[str, Any]):
         return cls(
-            name=payload['bstopnm'],
-            station_id1=get_int(payload['bstopid']),
-            station_id2=payload.get('arsno'),
-            pos_x=get_float(payload.get('gpsx')),
-            pos_y=get_float(payload.get('gpsy')),
-            st_type="BUSAN"
+            name=payload['name'],
+            station_id1=get_int(payload['id']),
+            station_id2=payload.get('displayId', '0'),
+            pos_x=get_float(payload.get('posX')),
+            pos_y=get_float(payload.get('posY')),
+            st_type="ULSAN"
         )
 
     @classmethod
@@ -143,7 +143,7 @@ class BusStation:
             "name": self.name,
             "id": final_id,
             "type": (
-                ["SEOUL", "GYEONGGI", "INCHEON", "BUSAN", "CHANGWON"].index(self.type) + 11
+                ["SEOUL", "GYEONGGI", "INCHEON", "BUSAN", "CHANGWON", "ULSAN"].index(self.type) + 11
                 if isinstance(self.type, str)
                 else self.type
             ),

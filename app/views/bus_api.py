@@ -1,8 +1,6 @@
-import os
 from collections import namedtuple
 from typing import NamedTuple
 
-import xmltodict
 from flask import Blueprint
 from flask import jsonify
 from flask import make_response
@@ -11,7 +9,6 @@ from flask import request as req
 from app.arrival import get_incheon, get_gyeonggi, get_changwon, get_korea
 from app.config.config import get_config
 from app.conversion import conversion_metropolitan, conversion_others
-from app.directory import directory
 from app.modules import bus_api
 from app.modules.bus_api.models.BusArrival import BusRouteInfo
 from app.utils import haversine
@@ -49,9 +46,6 @@ token = Token(
     changwon_bis=parser.get("token", "ChangwonBIS"),
     changwon_arrival=parser.get("token", "ChangwonArrival"),
 )
-
-with open(os.path.join(directory, "data", "ulsan_data.xml"), 'r', encoding='utf8') as fp:
-    ulsan_data = xmltodict.parse(fp.read())
 
 
 @bp.route("/station", methods=['GET'])
@@ -111,14 +105,13 @@ def station_info():
             )
             _list_ids += _exists_id
     elif city_code == "3":
-        city_key = ["BUSAN", 26, 38100, "CHANGWON", 38070]
+        city_key = ["BUSAN", 26, "CHANGWON", 38070]
         client = [
             bus_api.BusanBIS(token=token.busan_bis),
             bus_api.KoreaBIS(token=token.korea_bis, city_code=city_key[1]),
-            bus_api.KoreaBIS(token=token.korea_bis, city_code=city_key[2]),
             bus_api.ChangwonBIS(token=token.changwon_bis, arrival_token=token.changwon_arrival),
-            bus_api.KoreaBIS(token=token.korea_bis, city_code=city_key[4])
-        ]  # 1 2 4 8 16
+            bus_api.KoreaBIS(token=token.korea_bis, city_code=city_key[3])
+        ]  # 1 2 4 8
         station_list = {}
 
         for _client in client:

@@ -50,7 +50,9 @@ def conversion_others(
     for station in station_list.values():
         if len(station.keys()) <= 1:
             for _city_code in station.values():
-                result += _city_code
+                for _station in _city_code:
+                    _station.type = 200 + 2 ** (city_key.index(_station.type))
+                    result.append(_station)
             continue
         keys = list(station.keys())
 
@@ -84,11 +86,15 @@ def conversion_others(
             info: BusStation = v_station[basic_station]['info']
             info.type = 200 + 2 ** (city_key.index(info.type))
             for other_station in v_station[basic_station]["station"]:
-                if not isinstance(info.id2, list):
-                    info.id2 = [info.id2]
+                if info.id2 is not None:
+                    if not isinstance(info.id2, list):
+                        info.id2 = [info.id2]
 
-                if other_station.id2 is not None:
-                    info.id2.append(other_station.id2)
+                    if other_station.id2 is not None:
+                        info.id2.append(other_station.id2)
+                else:
+                    info.id2 = other_station.id2
+
                 info.id1 = -2
                 info.id1s.append(other_station.id1)
                 info.type += 2 ** (city_key.index(other_station.type))

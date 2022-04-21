@@ -2,7 +2,7 @@ from typing import Union, List, Dict, Any
 
 from .BusStation import BusStation
 from app.modules.errors import EmptyData
-from app.utils import get_float
+from app.utils import get_float, get_int
 
 
 class BusStationAround(BusStation):
@@ -118,6 +118,21 @@ class BusStationAround(BusStation):
             pos_x=get_float(payload.get('posX')),
             pos_y=get_float(payload.get('posY')),
             st_type="CHANGWON",
+            distance=int(payload.get("distance", 0))
+        )
+
+    @classmethod
+    def from_ulsan(
+            cls,
+            payload: Dict[str, Any]
+    ):
+        return cls(
+            name=payload['name'],
+            station_id1=get_int(payload['id']),
+            station_id2=payload.get('displayId', '0'),
+            pos_x=get_float(payload.get('posX')),
+            pos_y=get_float(payload.get('posY')),
+            st_type="ULSAN",
             distance=int(payload.get("distance", 0))
         )
 
