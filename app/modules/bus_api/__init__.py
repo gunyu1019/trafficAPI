@@ -6,3 +6,4 @@ from .SeoulBIS import SeoulBIS
 from .KoreaBIS import KoreaBIS
 from .GyeonggiBIS import GyeonggiBIS
 from .IncheonBIS import IncheonBIS
+from .UlsanBIS import UlsanBIS

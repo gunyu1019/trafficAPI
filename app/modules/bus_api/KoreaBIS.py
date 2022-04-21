@@ -52,7 +52,7 @@ class KoreaBIS(BaseClient):
             params={
                 "pageNo": 1,
                 "numOfRows": 100,
-                "nodeId": station_id,
+                "nodeid": station_id,
                 "cityCode": self.city_code,
                 "_type": "json"
             }

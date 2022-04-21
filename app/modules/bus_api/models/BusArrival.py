@@ -6,6 +6,7 @@ from .SeoulArrival import SeoulBusArrival
 from .GyeonggiArrival import GyeonggiBusArrival
 from .KoreaArrival import KoreaBusArrival
 from .IncheonArrival import IncheonBusArrival
+from .UlsanArrival import UlsanBusArrival
 
 
 class BusRouteInfo:
@@ -130,7 +131,7 @@ class BusRouteInfo:
         return cls(
             name=route['name'],
             id=data.id,
-            type="22" + format(route_type, '02d'),
+            type="24" + format(route_type, '02d'),
             arrival_info=[
                 {
                     "type": None,
@@ -157,6 +158,27 @@ class BusRouteInfo:
                 "is_arrival": x.prev_count <= 1
                 if isinstance(x.prev_count, int)
                 else False
+            }) for x in arrival
+        ]
+        return new_cls
+
+    @classmethod
+    def from_ulsan(cls, route: BusRoute, arrival: List[UlsanBusArrival]):
+        new_cls = cls(
+            name=route.name,
+            id=route.id,
+            type="25" + format(route.type, '02d'),
+            arrival_info=[]
+        )
+        new_cls.arrival_info = [
+            BusArrivalInfo(**{
+                "type": None,
+                "time": x.time,
+                "prev_count": x.prev_count,
+                "is_arrival": x.prev_count <= 1
+                if isinstance(x.prev_count, int)
+                else False,
+                "car_number": x.car_number,
             }) for x in arrival
         ]
         return new_cls

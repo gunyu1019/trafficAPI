@@ -89,7 +89,7 @@ class UlsanBIS(BaseClient):
         return result
 
     def get_route(self, station_id: int):
-        bus_ids = [x.id for x in self.korea_client.get_route(
+        bus_ids = [str(x.id).lstrip("USB") for x in self.korea_client.get_route(
             "USB{}".format(station_id)
         )]
         result = []

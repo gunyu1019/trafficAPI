@@ -58,10 +58,10 @@ class BusRoute:
     @classmethod
     def from_ulsan(cls, payload: Dict[str, Any]):
         bus_type_name = {11: "광역", 12: "좌석", 13: "일반", 20: "마을", 30: "간선"}
-        bus_type = payload['type']
+        bus_type = int(payload['type'])
         return cls(
-            bus_id=payload['routeid'],
-            bus_name=payload['routeno'],
+            bus_id=payload['id'],
+            bus_name=payload['name'],
             bus_type=bus_type,
             bus_type_name=bus_type_name[bus_type]
         )

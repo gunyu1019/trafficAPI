@@ -6,6 +6,7 @@ from app.modules.bus_api.models.GyeonggiArrival import GyeonggiBusArrival
 from app.modules.bus_api.models.IncheonArrival import IncheonBusArrival
 from app.modules.bus_api.models.KoreaArrival import KoreaBusArrival
 from app.modules.bus_api.models.ChangwonArrival import ChangwonBusArrival
+from app.modules.bus_api.models.UlsanArrival import UlsanBusArrival
 
 
 def get_gyeonggi(client, station_id: str, result: list = None):
@@ -114,3 +115,19 @@ def get_korea(arrival_data: List[KoreaBusArrival], route_data: List[bus_api.mode
         _route_data[arrival.bus_id]["arrival"].append(arrival)
 
     return [BusRouteInfo.from_korea(data["route"], data["arrival"], type_prefix) for data in _route_data.values()]
+
+
+def get_ulsan(arrival_data: List[UlsanBusArrival], route_data: List[bus_api.models.BusRoute]):
+    _route_data: Dict[int, Union[type(None), List[UlsanBusArrival], bus_api.models.BusRoute]] = {}
+    for route in route_data:
+        _route_data[route.id] = {
+            "route": route,
+            "arrival": []
+        }
+
+    for arrival in arrival_data:
+        if arrival.bus_id not in _route_data:
+            continue
+        _route_data[arrival.bus_id]["arrival"].append(arrival)
+
+    return [BusRouteInfo.from_ulsan(data["route"], data["arrival"]) for data in _route_data.values()]
