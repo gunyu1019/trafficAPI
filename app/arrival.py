@@ -120,7 +120,7 @@ def get_korea(arrival_data: List[KoreaBusArrival], route_data: List[bus_api.mode
 def get_ulsan(arrival_data: List[UlsanBusArrival], route_data: List[bus_api.models.BusRoute]):
     _route_data: Dict[int, Union[type(None), List[UlsanBusArrival], bus_api.models.BusRoute]] = {}
     for route in route_data:
-        _route_data[route.id] = {
+        _route_data[int(route.id)] = {
             "route": route,
             "arrival": []
         }
