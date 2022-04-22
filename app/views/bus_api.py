@@ -228,11 +228,12 @@ def station_info_around():
             ):
                 matched_client.append(_client)
 
-            if ('GyeonggiBIS' in matched_client or 'IncheonBIS' in matched_client) and 'SeoulBIS' not in matched_client:
+            if ('gyeonggi' in matched_client or 'incheon' in matched_client) and 'seoul' not in matched_client:
                 metropolitan = True
                 if city_code == "1":
-                    matched_client.append("SeoulBIS")
+                    matched_client.append("seoul")
 
+        pre_result = {}
         result = []
         _list_ids = []
         for client_name in matched_client:
@@ -249,6 +250,19 @@ def station_info_around():
                     client_result, _list_ids, result
                 )
                 _list_ids += _exists_id
+            else:
+                for station in client_result:
+                    if station.name.startswith("사용안함") or station.name.endswith('미사용'):
+                        continue
+
+                    if station.name not in pre_result:
+                        pre_result[station.name] = {}
+                    if station.type not in pre_result[station.name]:
+                        pre_result[station.name][station.type] = []
+                    pre_result[station.name][station.type].append(station)
+
+        if not metropolitan:
+            result = conversion_others(pre_result, ["BUSAN", "ULSAN", "CHANGWON", 38070])
     elif city_code == "11":
         result = client.seoul.get_station_around(pos_x=pos_x, pos_y=pos_y)
     elif city_code == "12":
