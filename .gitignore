@@ -141,3 +141,8 @@ app/config/config.ini
 
 # Dummy File (Only Bike Data)
 app/data/bike_data.json
+app/data/busan_busstop.xml
+app/data/changwon_bus.xml
+app/data/changwon_busstop.xml
+app/data/ulsan_bus.xml
+app/data/ulsan_busstop.xml
