@@ -162,9 +162,6 @@ def station_info_around():
     sections = map_data.sections()
     client = []
     if city_code == "1" or city_code == "2":
-        if city_code == "1":
-            client.append("SeoulBIS")
-
         for section in sections:
             western_min = map_data.getfloat(section, "western-outer-longitude", fallback=None)
             western_max = map_data.getfloat(section, "western-inner-longitude", fallback=None)
@@ -202,6 +199,9 @@ def station_info_around():
                 )
             ):
                 client.append(_client)
+
+            if city_code == "1" and ('GyeonggiBIS' in client or 'IncheonBIS' in client) and 'SeoulBIS' not in client:
+                client.append("SeoulBIS")
 
         result = []
         _list_ids = []
