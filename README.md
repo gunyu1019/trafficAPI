@@ -37,7 +37,7 @@
   * [광주광역시](http://bus.gwangju.go.kr/)
   * [나주시](http://bus.gwangju.go.kr/)
   * [담양군](http://bis.damyang.go.kr/)
-  * 장성군 - 광주광역시
+  * 장성군(일부) - 광주광역시
   * [화순군](http://bis.hwasun.go.kr/main/main)
 
 ### 지하철 역사 / 실시간 도착 / 시간표 정보
