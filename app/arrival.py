@@ -9,7 +9,7 @@ from app.modules.bus_api.models.ChangwonArrival import ChangwonBusArrival
 from app.modules.bus_api.models.UlsanArrival import UlsanBusArrival
 
 
-def get_gyeonggi(client, station_id: str, result: list = None):
+def get_gyeonggi(client, station_id: str, result: list = None, version: str = 'v1'):
     if result is None:
         result = []
     added_bus_id = []
@@ -36,16 +36,16 @@ def get_gyeonggi(client, station_id: str, result: list = None):
 
         if route.id in data:
             result.append(
-                BusRouteInfo.from_gyeonggi(route, data[route.id])
+                BusRouteInfo.from_gyeonggi(route, data[route.id], version)
             )
         else:
             result.append(
-                BusRouteInfo.from_gyeonggi(route)
+                BusRouteInfo.from_gyeonggi(route, version)
             )
     return result
 
 
-def get_incheon(client, station_id: str, result: list = None):
+def get_incheon(client, station_id: str, result: list = None, version: str = 'v1'):
     if result is None:
         result = []
     added_bus_id = []
@@ -80,7 +80,7 @@ def get_incheon(client, station_id: str, result: list = None):
         # if len(_arrival) < 2:
         #     [_arrival.append(IncheonBusArrival.empty()) for x in range(2 - len(_arrival))]
         result.append(
-            BusRouteInfo.from_incheon(_route, _arrival)
+            BusRouteInfo.from_incheon(_route, _arrival, version)
         )
     return result
 

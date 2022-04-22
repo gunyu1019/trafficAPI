@@ -21,11 +21,11 @@ class BusRouteInfo:
         ]
 
     @classmethod
-    def from_seoul(cls, data: SeoulBusArrival):
+    def from_seoul(cls, data: SeoulBusArrival, version: str = 'v1'):
         return cls(
             name=data.name,
             id=data.id,
-            type="11" + format(data.bus_type, '02d'),
+            type="11" + format(data.bus_type, '02d') if version == 'v2' else "10" + format(data.bus_type, '02d'),
             is_end="운행종료" == data.msg1,
             is_wait="출발대기" == data.msg1 and "회차대기" == data.msg1,
             arrival_info=[
@@ -46,12 +46,12 @@ class BusRouteInfo:
         )
 
     @classmethod
-    def from_gyeonggi(cls, route: BusRoute, arrival: Optional[GyeonggiBusArrival] = None):
+    def from_gyeonggi(cls, route: BusRoute, arrival: Optional[GyeonggiBusArrival] = None, version: str = 'v1'):
         flag = getattr(arrival, "flag", None)
         return cls(
             name=route.name,
             id=route.id,
-            type="12" + format(route.type, '02d'),
+            type="12" + format(route.type, '02d') if version == 'v2' else "20" + format(route.type, '02d'),
             is_end="STOP" == flag,
             is_wait="WAIT" == flag,
             arrival_info=[
@@ -76,11 +76,11 @@ class BusRouteInfo:
         )
 
     @classmethod
-    def from_incheon(cls, route: BusRoute, arrival: List[IncheonBusArrival]):
+    def from_incheon(cls, route: BusRoute, arrival: List[IncheonBusArrival], version: str = 'v1'):
         new_cls = cls(
             name=route.name,
             id=route.id,
-            type="13" + format(route.type, '02d'),
+            type="13" + format(route.type, '02d') if version == 'v2' else "30" + format(route.bus_type, '02d'),
             arrival_info=[]
         )
         new_cls.arrival_info = [

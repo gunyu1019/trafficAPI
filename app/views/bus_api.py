@@ -263,6 +263,7 @@ def arrival_info():
         )
     station_id = args['id']
     city_code = args.get('cityCode', type=int)
+    version = args.get('version', type=str, default='v1')
 
     client_namedtuple = namedtuple(
         'client', [
@@ -292,7 +293,7 @@ def arrival_info():
         for bus in _result:
             if bus.bus_type != 8 and bus.bus_type != 7:
                 result.append(
-                    BusRouteInfo.from_seoul(bus)
+                    BusRouteInfo.from_seoul(bus, version)
                 )
             elif bus.bus_type == 8 and client.gyeonggi not in override:
                 override.append(client.gyeonggi)
@@ -300,9 +301,9 @@ def arrival_info():
                 override.append(client.incheon)
 
         if client.gyeonggi in override:
-            result = get_gyeonggi(client, _station_ids, result)
+            result = get_gyeonggi(client, _station_ids, result, version)
         if client.incheon in override:
-            result = get_incheon(client, _station_ids, result)
+            result = get_incheon(client, _station_ids, result, version)
     elif city_code == 12 or city_code == 13:
         result = get_gyeonggi(client, station_id)
         result = get_incheon(client, station_id, result)
