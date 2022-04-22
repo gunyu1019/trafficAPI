@@ -6,7 +6,7 @@ from .models.BusRoute import BusRoute
 from .models.BusStationAround import BusStationAround
 from .models.KoreaArrival import KoreaBusArrival
 from app.modules.errors import *
-from app.utils import get_list_from_ordered_dict
+from app.utils import get_list_from_ordered_dict, haversine
 
 
 class KoreaBIS(BaseClient):
@@ -93,7 +93,13 @@ class KoreaBIS(BaseClient):
             raise EmptyData()
 
         item_list = body['item']
-        return [BusStationAround.from_korea(x, self.city_code) for x in get_list_from_ordered_dict(item_list)]
+        result = []
+        for station in get_list_from_ordered_dict(item_list):
+            station['distance'] = haversine(station['gpslong'], station['gpslati'], pos_x, pos_y)
+            result.append(
+                BusStationAround.from_korea(station, city_code=self.city_code)
+            )
+        return result
 
     def get_arrival(self, station_id: int):
         data = self.get(

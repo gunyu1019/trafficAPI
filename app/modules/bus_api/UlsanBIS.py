@@ -11,7 +11,7 @@ from .models.UlsanArrival import UlsanBusArrival
 from .KoreaBIS import KoreaBIS
 from app.directory import directory
 from app.modules.errors import *
-from app.utils import haversine, get_list_from_ordered_dict
+from app.utils import haversine, get_list_from_ordered_dict, get_float
 
 
 class UlsanBIS(BaseClient):
@@ -44,8 +44,8 @@ class UlsanBIS(BaseClient):
             rows.append({
                 "id": station.get("STOPID"),
                 "name": station.get("STOPNAME"),
-                "posX": station.get("STOPX"),
-                "posY": station.get("STOPY"),
+                "posX": get_float(station.get("STOPX")),
+                "posY": get_float(station.get("STOPY")),
                 "displayId": 0
             })
         return pandas.DataFrame(rows, columns=['id', 'name', 'posX', 'posY', 'displayId'])

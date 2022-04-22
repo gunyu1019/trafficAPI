@@ -45,8 +45,8 @@ class ChangwonBIS(BaseClient):
             rows.append({
                 "id": station.get("STATION_ID"),
                 "name": name,
-                "posX": station.get("LOCAL_X"),
-                "posY": station.get("LOCAL_Y"),
+                "posX": float(station.get("LOCAL_X")),
+                "posY": float(station.get("LOCAL_Y")),
                 "displayId": station.get("MOBI_NUM")
             })
         return pandas.DataFrame(rows, columns=['id', 'name', 'posX', 'posY', 'displayId'])

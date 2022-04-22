@@ -9,9 +9,9 @@ class BusStationAround(BusStation):
     def __init__(
             self,
             station_id1: Union[str, int],
-            station_id2: Union[int, List[int]],
+            station_id2: Union[str, List[str]],
             name: str,
-            st_type: str,
+            st_type: Union[str, int],
             distance: int,
             pos_x: float = None,
             pos_y: float = None,
@@ -43,7 +43,7 @@ class BusStationAround(BusStation):
         return cls(
             name=payload['stationNm'],
             station_id1=int(payload['stationId']),
-            station_id2=int(payload['arsId']),
+            station_id2=payload['arsId'],
             pos_x=pos_x,
             pos_y=pos_y,
             st_type="SEOUL",
@@ -61,7 +61,7 @@ class BusStationAround(BusStation):
         return cls(
             name=payload['stationName'],
             station_id1=int(payload['stationId']),
-            station_id2=int(payload.get('mobileNo', 0)),
+            station_id2=payload.get('mobileNo', 0),
             pos_x=pos_x,
             pos_y=pos_y,
             st_type="GYEONGGI",
@@ -107,6 +107,18 @@ class BusStationAround(BusStation):
         )
 
     @classmethod
+    def from_busan(cls, payload: Dict[str, Any]):
+        return cls(
+            name=payload['bstopnm'],
+            station_id1=get_int(payload['bstopid']),
+            station_id2=payload.get('arsno'),
+            pos_x=get_float(payload.get('gpsx')),
+            pos_y=get_float(payload.get('gpsy')),
+            st_type="BUSAN",
+            distance=int(payload.get("distance", 0))
+        )
+
+    @classmethod
     def from_changwon(
             cls,
             payload: Dict[str, Any]
@@ -119,6 +131,18 @@ class BusStationAround(BusStation):
             pos_y=get_float(payload.get('posY')),
             st_type="CHANGWON",
             distance=int(payload.get("distance", 0))
+        )
+
+    @classmethod
+    def from_korea(cls, payload: Dict[str, Any], city_code: int):
+        return cls(
+            name=payload['nodenm'],
+            station_id1=payload['nodeid'],
+            station_id2=str(payload.get('nodeno')),
+            pos_x=get_float(payload.get('gpslong')),
+            pos_y=get_float(payload.get('gpslati')),
+            distance=int(payload.get("distance", 0)),
+            st_type=city_code
         )
 
     @classmethod

@@ -30,8 +30,8 @@ class BusanBIS(BaseClient):
                 "bstopid": station.get("bstopid"),
                 "bstopnm": station.get("bstopnm"),
                 "arsno": station.get("arsno"),
-                "gpsx": station.get("gpsx"),
-                "gpsy": station.get("gpsy")
+                "gpsx": float(station.get("gpsx")),
+                "gpsy": float(station.get("gpsy"))
             })
         return pandas.DataFrame(rows, columns=['bstopid', 'bstopnm', 'arsno', 'gpsx', 'gpsy'])
 
@@ -73,7 +73,7 @@ class BusanBIS(BaseClient):
         data = self.get_station_data().to_dict('records')
         result = []
         for station in data:
-            station['distance'] = haversine(station['posX'], station['posY'], pos_x, pos_y)
+            station['distance'] = haversine(station['gpsx'], station['gpsy'], pos_x, pos_y)
             if station['distance'] < radius:
                 result.append(
                     BusStationAround.from_busan(station)
