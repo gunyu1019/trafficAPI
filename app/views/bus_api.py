@@ -1,4 +1,3 @@
-from collections import namedtuple
 from typing import NamedTuple
 
 from flask import Blueprint
@@ -11,7 +10,6 @@ from app.config.config import get_config
 from app.conversion import conversion_metropolitan, conversion_others
 from app.modules import bus_api
 from app.modules.bus_api.models.BusArrival import BusRouteInfo
-from app.utils import haversine
 
 bp = Blueprint(
     name="bus_api",
@@ -34,6 +32,16 @@ class Token(NamedTuple):
     ulsan_bis: str
 
 
+class ClientList(NamedTuple):
+    seoul: bus_api.SeoulBIS
+    gyeonggi: bus_api.GyeonggiBIS
+    incheon: bus_api.IncheonBIS
+    busan: bus_api.BusanBIS
+    ulsan: bus_api.UlsanBIS
+    changwon: bus_api.ChangwonBIS
+    gimhae: bus_api.KoreaBIS
+
+
 parser = get_config()
 token = Token(
     korea_bis=parser.get("token", "KoreaBIS"),
@@ -47,6 +55,15 @@ token = Token(
     changwon_bis=parser.get("token", "ChangwonBIS"),
     changwon_arrival=parser.get("token", "ChangwonArrival"),
     ulsan_bis=parser.get("token", "UlsanBIS"),
+)
+client = ClientList(
+    bus_api.SeoulBIS(token=token.seoul_bis),
+    bus_api.GyeonggiBIS(token=token.gyeonggi_bis, arrival_token=token.gyeonggi_arrival),
+    bus_api.IncheonBIS(token=token.incheon_bis, arrival_token=token.incheon_arrival),
+    bus_api.BusanBIS(token=token.busan_bis),
+    bus_api.UlsanBIS(token=token.ulsan_bis, korea_token=token.korea_bis),
+    bus_api.ChangwonBIS(token=token.changwon_bis, arrival_token=token.changwon_arrival),
+    bus_api.KoreaBIS(token=token.korea_bis, city_code=38070)
 )
 
 
@@ -65,38 +82,45 @@ def station_info():
     city_code = args.get('cityCode', default="1")
     if city_code == "11":
         try:
-            client = bus_api.SeoulBIS(token=token.seoul_bis)
-            result = client.get_station(name=station_name)
+            result = client.seoul.get_station(name=station_name)
         except bus_api.EmptyData:
             result = []
     elif city_code == "12":
         try:
-            client = bus_api.GyeonggiBIS(token=token.gyeonggi_bis, arrival_token=token.gyeonggi_arrival)
-            result = client.get_station(name=station_name)
+            result = client.gyeonggi.get_station(name=station_name)
         except bus_api.EmptyData:
             result = []
     elif city_code == "13":
         try:
-            client = bus_api.IncheonBIS(token=token.incheon_bis, arrival_token=token.incheon_arrival)
-            result = client.get_station(name=station_name)
+            result = client.incheon.get_station(name=station_name)
         except bus_api.EmptyData:
             result = []
-    elif city_code == "14":
+    elif city_code == "21":
         try:
-            client = bus_api.BusanBIS(token=token.busan_bis)
-            result = client.get_station(name=station_name)
+            result = client.busan.get_station(name=station_name)
+        except bus_api.EmptyData:
+            result = []
+    elif city_code == "22":
+        try:
+            result = client.ulsan.get_station(name=station_name)
+        except bus_api.EmptyData:
+            result = []
+    elif city_code == "24":
+        try:
+            result = client.changwon.get_station(name=station_name)
+        except bus_api.EmptyData:
+            result = []
+    elif city_code == "25":
+        try:
+            result = client.gimhae.get_station(name=station_name)
         except bus_api.EmptyData:
             result = []
     elif city_code == "1":
-        client = [
-            bus_api.SeoulBIS(token=token.seoul_bis),
-            bus_api.GyeonggiBIS(token=token.gyeonggi_bis, arrival_token=token.gyeonggi_arrival),
-            bus_api.IncheonBIS(token=token.incheon_bis, arrival_token=token.incheon_arrival)
-        ]
+        matched_client = [client.seoul, client.gyeonggi, client.incheon]
         result = []
         _list_ids = []
 
-        for _client in client:
+        for _client in matched_client:
             try:
                 client_result = _client.get_station(name=station_name)
             except bus_api.EmptyData:
@@ -108,7 +132,7 @@ def station_info():
             _list_ids += _exists_id
     elif city_code == "3":
         city_key = ["BUSAN", "ULSAN", "CHANGWON", 38070]
-        client = [
+        matched_client = [
             bus_api.BusanBIS(token=token.busan_bis),
             bus_api.UlsanBIS(token=token.ulsan_bis, korea_token=token.korea_bis),
             bus_api.ChangwonBIS(token=token.changwon_bis, arrival_token=token.changwon_arrival),
@@ -116,13 +140,16 @@ def station_info():
         ]  # 1 2 4 8
         station_list = {}
 
-        for _client in client:
+        for _client in matched_client:
             try:
                 _result = _client.get_station(name=station_name)
             except bus_api.EmptyData:
                 continue
 
             for station in _result:
+                if station.name.startswith("사용안함") or station.name.endswith('미사용'):
+                    continue
+
                 if station.name not in station_list:
                     station_list[station.name] = {}
                 if station.type not in station_list[station.name]:
@@ -160,7 +187,8 @@ def station_info_around():
 
     map_data = get_config("map_data")
     sections = map_data.sections()
-    client = []
+    matched_client = []
+    metropolitan = False
     if city_code == "1" or city_code == "2":
         for section in sections:
             western_min = map_data.getfloat(section, "western-outer-longitude", fallback=None)
@@ -198,15 +226,17 @@ def station_info_around():
                     ) or not inner
                 )
             ):
-                client.append(_client)
+                matched_client.append(_client)
 
-            if city_code == "1" and ('GyeonggiBIS' in client or 'IncheonBIS' in client) and 'SeoulBIS' not in client:
-                client.append("SeoulBIS")
+            if ('GyeonggiBIS' in matched_client or 'IncheonBIS' in matched_client) and 'SeoulBIS' not in matched_client:
+                metropolitan = True
+                if city_code == "1":
+                    matched_client.append("SeoulBIS")
 
         result = []
         _list_ids = []
-        for client_name in client:
-            _client = getattr(bus_api, client_name)(token=token.seoul_bis)
+        for client_name in matched_client:
+            _client = getattr(client, client_name)
             try:
                 client_result = _client.get_station_around(
                     pos_x=pos_x, pos_y=pos_y
@@ -214,19 +244,17 @@ def station_info_around():
             except bus_api.EmptyData:
                 continue
 
-            result, _exists_id = conversion_metropolitan(
-                client_result, _list_ids, result
-            )
-            _list_ids += _exists_id
+            if metropolitan:
+                result, _exists_id = conversion_metropolitan(
+                    client_result, _list_ids, result
+                )
+                _list_ids += _exists_id
     elif city_code == "11":
-        client = bus_api.SeoulBIS(token=token.seoul_bis)
-        result = client.get_station_around(pos_x=pos_x, pos_y=pos_y)
+        result = client.seoul.get_station_around(pos_x=pos_x, pos_y=pos_y)
     elif city_code == "12":
-        client = bus_api.GyeonggiBIS(token=token.gyeonggi_bis)
-        result = client.get_station_around(pos_x=pos_x, pos_y=pos_y)
+        result = client.gyeonggi.get_station_around(pos_x=pos_x, pos_y=pos_y)
     elif city_code == "13":
-        client = bus_api.IncheonBIS(token=token.gyeonggi_bis)
-        result = client.get_station_around(pos_x=pos_x, pos_y=pos_y)
+        result = client.incheon.get_station_around(pos_x=pos_x, pos_y=pos_y)
     else:
         return make_response(
             jsonify({
@@ -264,22 +292,6 @@ def arrival_info():
     station_id = args['id']
     city_code = args.get('cityCode', type=int)
     version = args.get('version', type=str, default='v1')
-
-    client_namedtuple = namedtuple(
-        'client', [
-            'seoul', 'gyeonggi', 'incheon',
-            'busan', 'ulsan', 'changwon', 'gimhae'
-        ]
-    )
-    client = client_namedtuple(
-        bus_api.SeoulBIS(token=token.seoul_bis),
-        bus_api.GyeonggiBIS(token=token.gyeonggi_bis, arrival_token=token.gyeonggi_arrival),
-        bus_api.IncheonBIS(token=token.incheon_bis, arrival_token=token.incheon_arrival),
-        bus_api.BusanBIS(token=token.busan_bis),
-        bus_api.UlsanBIS(token=token.ulsan_bis, korea_token=token.korea_bis),
-        bus_api.ChangwonBIS(token=token.changwon_bis, arrival_token=token.changwon_arrival),
-        bus_api.KoreaBIS(token=token.korea_bis, city_code=38070)
-    )
 
     result = []
     override = []
@@ -326,22 +338,22 @@ def arrival_info():
                     break
                 t += 1
         client_by_station_id.reverse()
-        for client, _station_id, city_id in client_by_station_id:
+        for _client, _station_id, city_id in client_by_station_id:
             try:
-                _result = client.get_arrival(_station_id)
+                _result = _client.get_arrival(_station_id)
             except bus_api.EmptyData:
                 _result = []
 
             if city_id not in ["busan", "changwon", "ulsan"]:
                 index = city_key.index(city_id)
                 try:
-                    route_data = client.get_route(_station_id, bus_type_dictionary[city_id])
+                    route_data = _client.get_route(_station_id, bus_type_dictionary[city_id])
                 except bus_api.EmptyData:
                     continue
                 result += get_korea(_result, route_data, prefix_route[index])
                 continue
             elif city_id == "ulsan":
-                route_data = client.get_route(_station_id)
+                route_data = _client.get_route(_station_id)
                 result += get_ulsan(_result, route_data)
                 continue
 
@@ -349,7 +361,7 @@ def arrival_info():
                 if city_id == "busan":
                     result.append(BusRouteInfo.from_busan(route))
                 elif city_id == "changwon":
-                    result.append(get_changwon(client, route))
+                    result.append(get_changwon(_client, route))
     return jsonify([
         x.to_dict() for x in result
     ])
