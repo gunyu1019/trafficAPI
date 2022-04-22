@@ -268,7 +268,7 @@ def arrival_info():
     client_namedtuple = namedtuple(
         'client', [
             'seoul', 'gyeonggi', 'incheon',
-            'busan', 'ulsan', 'yangsan', 'changwon', 'gimhae'
+            'busan', 'ulsan', 'changwon', 'gimhae'
         ]
     )
     client = client_namedtuple(
@@ -277,7 +277,6 @@ def arrival_info():
         bus_api.IncheonBIS(token=token.incheon_bis, arrival_token=token.incheon_arrival),
         bus_api.BusanBIS(token=token.busan_bis),
         bus_api.UlsanBIS(token=token.ulsan_bis, korea_token=token.korea_bis),
-        bus_api.KoreaBIS(token=token.korea_bis, city_code=38100),
         bus_api.ChangwonBIS(token=token.changwon_bis, arrival_token=token.changwon_arrival),
         bus_api.KoreaBIS(token=token.korea_bis, city_code=38070)
     )
