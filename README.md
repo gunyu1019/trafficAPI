@@ -42,7 +42,7 @@
 
 ### 지하철 역사 / 실시간 도착 / 시간표 정보
 * 서울교통공사
-* [henewsuh/subway_crd_line_info](https://github.com/henewsuh/subway_crd_line_info) - 시간표 정보, 2022년 전철 반영
+* [henewsuh/subway_crd_line_info](https://github.com/henewsuh/subway_crd_line_info) - 위치(위경도) 정보, 2022년 전철 반영
 
 ### 자전거 대여소 정보
 * [서울특별시 따릉이](https://www.bikeseoul.com/)
