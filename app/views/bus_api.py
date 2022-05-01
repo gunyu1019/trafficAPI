@@ -228,9 +228,9 @@ def station_info_around():
             ):
                 matched_client.append(_client)
 
-            if ('gyeonggi' in matched_client or 'incheon' in matched_client) and 'seoul' not in matched_client:
+            if 'gyeonggi' in matched_client or 'incheon' in matched_client or 'seoul' in matched_client:
                 metropolitan = True
-                if city_code == "1":
+                if city_code == "1" and 'seoul' not in matched_client:
                     matched_client.append("seoul")
 
         pre_result = {}
@@ -326,12 +326,12 @@ def arrival_info():
                 override.append(client.incheon)
 
         if client.gyeonggi in override:
-            result = get_gyeonggi(client, _station_ids, result, version)
+            result = get_gyeonggi(client, _station_ids, result, version=version)
         if client.incheon in override:
-            result = get_incheon(client, _station_ids, result, version)
+            result = get_incheon(client, _station_ids, result, version=version)
     elif city_code == 12 or city_code == 13:
-        result = get_gyeonggi(client, station_id)
-        result = get_incheon(client, station_id, result)
+        result = get_gyeonggi(client, station_id, version=version)
+        result = get_incheon(client, station_id, result, version)
     elif 200 < city_code < 264:
         city_key = ['busan', 'ulsan', 'changwon', 'gimhae']
         bus_type_dictionary = {

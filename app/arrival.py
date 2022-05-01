@@ -36,11 +36,11 @@ def get_gyeonggi(client, station_id: str, result: list = None, version: str = 'v
 
         if route.id in data:
             result.append(
-                BusRouteInfo.from_gyeonggi(route, data[route.id], version)
+                BusRouteInfo.from_gyeonggi(route, data[route.id], version=version)
             )
         else:
             result.append(
-                BusRouteInfo.from_gyeonggi(route, version)
+                BusRouteInfo.from_gyeonggi(route, version=version)
             )
     return result
 

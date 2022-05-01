@@ -61,7 +61,7 @@ class BusanBIS(BaseClient):
 
     def get_station(self, name: str):
         data = self.get_station_data()
-        result = data[data['name'].str.contains(name)].to_dict('records')
+        result = data[data['bstopnm'].str.contains(name)].to_dict('records')
         return [BusStation.from_busan(x) for x in result]
 
     def get_station_around(
