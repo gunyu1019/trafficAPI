@@ -1,5 +1,5 @@
 from typing import Union, List, Dict, Any
-from app.utils import get_float, get_int
+from app.utils import get_float, get_int, optional_int_to_str
 
 
 class BusStation:
@@ -141,13 +141,13 @@ class BusStation:
 
         result = {
             "name": self.name,
-            "id": final_id,
+            "id": optional_int_to_str(final_id),
             "type": (
                 ["SEOUL", "GYEONGGI", "INCHEON", "BUSAN", "CHANGWON", "ULSAN"].index(self.type) + 11
                 if isinstance(self.type, str)
                 else self.type
             ),
-            "stationId": self.id1,
+            "stationId": optional_int_to_str(self.id1),
             "displayId": self.id2 if self.id2 != 0 else None,
             "posX": self.pos_x,
             "posY": self.pos_y,

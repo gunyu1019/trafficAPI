@@ -40,3 +40,9 @@ def haversine(pos_x1, pos_y1, pos_x2, pos_y2):
 
     distance = math.sin(relative_y * 0.5) ** 2 + math.cos(_pos_y1) * math.cos(_pos_y2) * math.sin(relative_x * 0.5) ** 2
     return math.asin(math.sqrt(distance)) * EARTH_RADIUS_M * 2
+
+
+def optional_int_to_str(data):
+    if isinstance(data, int):
+        return str(data)
+    return data
