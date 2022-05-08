@@ -126,10 +126,9 @@ def station_info():
             except bus_api.EmptyData:
                 continue
 
-            result, _exists_id = conversion_metropolitan(
+            result, _list_ids = conversion_metropolitan(
                 client_result, _list_ids, result
             )
-            _list_ids += _exists_id
     elif city_code == "3":
         city_key = ["BUSAN", "ULSAN", "CHANGWON", 38070]
         matched_client = [
@@ -246,10 +245,9 @@ def station_info_around():
                 continue
 
             if metropolitan:
-                result, _exists_id = conversion_metropolitan(
+                result, _list_ids = conversion_metropolitan(
                     client_result, _list_ids, result
                 )
-                _list_ids += _exists_id
             else:
                 for station in client_result:
                     if station.name.startswith("사용안함") or station.name.endswith('미사용'):

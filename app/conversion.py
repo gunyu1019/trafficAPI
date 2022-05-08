@@ -5,13 +5,15 @@ from .utils import haversine
 
 def conversion_metropolitan(
         pre_data: List[BusStation],
-        exists_id: List[int],
+        exists_id: List[int] = None,
         default_result=None
 ) -> Tuple[
     List[BusStation],
     List[int]
 ]:
     result = default_result
+    if exists_id is None:
+        exists_id = []
     if result is None:
         result = []
     for index, station in enumerate(pre_data):
