@@ -1,5 +1,5 @@
 from typing import List, Tuple, Dict, Union
-from .modules.bus_api import BusStation
+from .modules.stop_api import BusStation
 from .utils import haversine
 
 
