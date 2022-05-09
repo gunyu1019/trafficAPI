@@ -7,7 +7,10 @@ from app.utils import get_list_from_ordered_dict
 
 
 class SeoulBIS(BaseClient):
-    def __init__(self, token: str):
+    def __init__(
+            self,
+            token: str
+    ):
         super().__init__("http://ws.bus.go.kr")
         self.token = token
 

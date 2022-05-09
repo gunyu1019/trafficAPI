@@ -1,12 +1,12 @@
 from typing import List, Dict, Union
 
-from app.modules import stop_api
-from app.modules.stop_api.models.BusArrival import BusRouteInfo
-from app.modules.stop_api.models.GyeonggiArrival import GyeonggiBusArrival
-from app.modules.stop_api.models.IncheonArrival import IncheonBusArrival
-from app.modules.stop_api.models.KoreaArrival import KoreaBusArrival
-from app.modules.stop_api.models.ChangwonArrival import ChangwonBusArrival
-from app.modules.stop_api.models.UlsanArrival import UlsanBusArrival
+from app.modules import bus_api
+from app.modules.bus_api.models.BusArrival import BusRouteInfo
+from app.modules.bus_api.models.GyeonggiArrival import GyeonggiBusArrival
+from app.modules.bus_api.models.IncheonArrival import IncheonBusArrival
+from app.modules.bus_api.models.KoreaArrival import KoreaBusArrival
+from app.modules.bus_api.models.ChangwonArrival import ChangwonBusArrival
+from app.modules.bus_api.models.UlsanArrival import UlsanBusArrival
 
 
 def get_gyeonggi(client, station_id: str, result: list = None, version: str = 'v1'):
@@ -18,13 +18,13 @@ def get_gyeonggi(client, station_id: str, result: list = None, version: str = 'v
     data = {}
     try:
         route_data = client.gyeonggi.get_route(station_id=station_id)
-    except stop_api.EmptyData:
+    except bus_api.EmptyData:
         return result
 
     arrival_data = []
     try:
         arrival_data = client.gyeonggi.get_arrival(station_id=station_id)
-    except stop_api.EmptyData:
+    except bus_api.EmptyData:
         pass
 
     for arrival in arrival_data:
@@ -55,13 +55,13 @@ def get_incheon(client, station_id: str, result: list = None, version: str = 'v1
     data = {}
     try:
         route_data = client.incheon.get_route(station_id=station_id)
-    except stop_api.EmptyData:
+    except bus_api.EmptyData:
         return result
 
     arrival_data = []
     try:
         arrival_data = client.incheon.get_arrival(station_id=station_id)
-    except stop_api.EmptyData:
+    except bus_api.EmptyData:
         pass
     for route in route_data:
         if route.id not in added_bus_id:
@@ -85,7 +85,7 @@ def get_incheon(client, station_id: str, result: list = None, version: str = 'v1
     return result
 
 
-def get_changwon(client: stop_api.ChangwonBIS, arrival_data: ChangwonBusArrival):
+def get_changwon(client: bus_api.ChangwonBIS, arrival_data: ChangwonBusArrival):
     bus_data = client.get_bus_data()
 
     route = bus_data[bus_data['id'] == arrival_data.id].to_dict('records')[0]
@@ -101,8 +101,8 @@ def get_changwon(client: stop_api.ChangwonBIS, arrival_data: ChangwonBusArrival)
     return BusRouteInfo.from_changwon(arrival_data, route, route_type)
 
 
-def get_korea(arrival_data: List[KoreaBusArrival], route_data: List[stop_api.models.BusRoute], type_prefix: int):
-    _route_data: Dict[int, Union[type(None), List[KoreaBusArrival], stop_api.models.BusRoute]] = {}
+def get_korea(arrival_data: List[KoreaBusArrival], route_data: List[bus_api.models.BusRoute], type_prefix: int):
+    _route_data: Dict[int, Union[type(None), List[KoreaBusArrival], bus_api.models.BusRoute]] = {}
     for route in route_data:
         _route_data[route.id] = {
             "route": route,
@@ -117,8 +117,8 @@ def get_korea(arrival_data: List[KoreaBusArrival], route_data: List[stop_api.mod
     return [BusRouteInfo.from_korea(data["route"], data["arrival"], type_prefix) for data in _route_data.values()]
 
 
-def get_ulsan(arrival_data: List[UlsanBusArrival], route_data: List[stop_api.models.BusRoute]):
-    _route_data: Dict[int, Union[type(None), List[UlsanBusArrival], stop_api.models.BusRoute]] = {}
+def get_ulsan(arrival_data: List[UlsanBusArrival], route_data: List[bus_api.models.BusRoute]):
+    _route_data: Dict[int, Union[type(None), List[UlsanBusArrival], bus_api.models.BusRoute]] = {}
     for route in route_data:
         _route_data[int(route.id)] = {
             "route": route,
