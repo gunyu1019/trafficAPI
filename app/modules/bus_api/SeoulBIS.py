@@ -9,14 +9,18 @@ from app.utils import get_list_from_ordered_dict
 class SeoulBIS(BaseClient):
     def __init__(
             self,
-            token: str
+            token: str = None,
+            bus_token: str = None,
+            route_token: str = None
     ):
         super().__init__("http://ws.bus.go.kr")
         self.token = token
+        self.bus_token = bus_token
+        self.route_token = route_token
 
-    def request(self, **kwargs):
+    def request(self, token: str, **kwargs):
         params = {
-            'serviceKey': self.token
+            'serviceKey': token
         }
         return super(SeoulBIS, self).request(_default_params=params, _default_xml=True, **kwargs)
 
@@ -25,7 +29,8 @@ class SeoulBIS(BaseClient):
             path="/api/rest/stationinfo/getStationByName",
             params={
                 "stSrch": name
-            }
+            },
+            token=self.token
         )
         result = data['ServiceResult']
 
@@ -50,7 +55,8 @@ class SeoulBIS(BaseClient):
                 "tmX": pos_x,
                 "tmY": pos_y,
                 "radius": around
-            }
+            },
+            token=self.token
         )
         result = data['ServiceResult']
 
@@ -68,7 +74,27 @@ class SeoulBIS(BaseClient):
             path="/api/rest/stationinfo/getStationByUid",
             params={
                 "arsId": station_id
-            }
+            },
+            token=self.token
+        )
+        result = data['ServiceResult']
+
+        # HEAD AND BODY
+        head = result['msgHeader']
+        body = result['msgBody']
+        if body is None:
+            raise EmptyData()
+
+        item_list = body['itemList']
+        return [SeoulBusArrival(x) for x in get_list_from_ordered_dict(item_list)]
+
+    def get_bus(self, name: str):
+        data = self.get(
+            path="/api/rest/busRouteInfo/getBusRouteList",
+            params={
+                "strSrch": name
+            },
+            token=self.bus_token
         )
         result = data['ServiceResult']
 
