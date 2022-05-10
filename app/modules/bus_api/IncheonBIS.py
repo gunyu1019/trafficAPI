@@ -206,7 +206,7 @@ class IncheonBIS(BaseClient):
         if body is None:
             raise EmptyData()
         item_list = body['itemList']
-        return [BusInfoDetails.from_incheon(x) for x in get_list_from_ordered_dict(item_list)]
+        return BusInfoDetails.from_incheon(item_list)
 
     def get_bus_route(
             self,
@@ -230,8 +230,21 @@ class IncheonBIS(BaseClient):
         body = result['msgBody']
         if body is None:
             raise EmptyData()
-        item_list = body['itemList']
-        return [BusStationRoute.from_incheon(x) for x in get_list_from_ordered_dict(item_list)]
+        item_list = get_list_from_ordered_dict(body['itemList'])
+
+        result = []
+        direction = item_list[0]['DIRCD']
+        for index, bus_route in enumerate(item_list):
+            if index + 1 < len(item_list):
+                if item_list[index + 1]['DIRCD'] != direction:
+                    bus_route['roundabout'] = True
+                    direction = item_list[index + 1]['DIRCD']
+                else:
+                    bus_route['roundabout'] = False
+            result.append(
+                BusStationRoute.from_incheon(bus_route)
+            )
+        return result
 
     def get_bus_location(
             self,

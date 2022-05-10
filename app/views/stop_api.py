@@ -116,11 +116,9 @@ def station_info():
         except bus_api.EmptyData:
             result = []
     elif city_code == "1":
-        matched_client = [client.seoul, client.gyeonggi, client.incheon]
         result = []
         _list_ids = []
-
-        for _client in matched_client:
+        for _client in [client.seoul, client.gyeonggi, client.incheon]:
             try:
                 client_result = _client.get_station(name=station_name)
             except bus_api.EmptyData:
@@ -165,7 +163,7 @@ def station_info():
             400
         )
     return jsonify([
-        x.to_data() for x in result if x.id != 0
+        x.to_dict() for x in result if x.id != 0
     ])
 
 
@@ -276,7 +274,7 @@ def station_info_around():
             400
         )
     final_result = [
-        x.to_data() for x in result if x.id != 0
+        x.to_dict() for x in result if x.id != 0
     ]
     final_result = sorted(final_result, key=lambda x: x['distance'])
     return jsonify(final_result)

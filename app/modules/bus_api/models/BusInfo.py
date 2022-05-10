@@ -51,3 +51,10 @@ class BusInfo:
             st_type="INCHEON",
             region=payload.get("ADMINNM")
         )
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "name": self.name,
+            "type": self.type,
+            "id": self.id
+        }

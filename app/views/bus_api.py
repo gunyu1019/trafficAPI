@@ -6,6 +6,7 @@ from flask import make_response
 from flask import request as req
 
 from app.config.config import get_config
+from app.conversion import conversion_metropolitan
 from app.modules import bus_api
 
 bp = Blueprint(
@@ -40,25 +41,150 @@ token = Token(
     incheon_route=parser.get("token", "IncheonArrival")
 )
 client = ClientList(
-    bus_api.SeoulBIS(token=token.seoul_bis),
-    bus_api.GyeonggiBIS(token=token.gyeonggi_bis, arrival_token=token.gyeonggi_arrival),
-    bus_api.IncheonBIS(token=token.incheon_bis, arrival_token=token.incheon_arrival)
+    bus_api.SeoulBIS(bus_token=token.seoul_bus, location_token=token.seoul_route),
+    bus_api.GyeonggiBIS(bus_token=token.gyeonggi_bus, location_token=token.gyeonggi_route),
+    bus_api.IncheonBIS(bus_token=token.incheon_bus, location_token=token.incheon_route)
 )
 
 
-@bp.route("/bus", methods=['GET'])
+@bp.route("/search", methods=['GET'])
 def bus_info():
     args = req.args
     if "name" not in args:
         return make_response(
             jsonify({
                 "CODE": 400,
-                "MESSAGE": "Missing Bus Station name."
+                "MESSAGE": "Missing Bus route name."
             }),
             400
         )
-    station_name = args.get('name')
+    bus_name = args.get('name')
     city_code = args.get('cityCode', default="1")
+    result = []
     if city_code == "1":
-        for client in []
-    return
+        _list_ids = []
+        try:
+            _result = client.seoul.get_bus(name=bus_name)
+            result = [bus for bus in _result if bus.type != "1107" and bus.type != "1108"]
+        except bus_api.EmptyData:
+            pass
+
+        for _client in [client.gyeonggi, client.incheon]:
+            try:
+                result += _client.get_bus(name=bus_name)
+            except bus_api.EmptyData:
+                pass
+    else:
+        return make_response(
+            jsonify({
+                "CODE": 400,
+                "MESSAGE": "Invalid City Code"
+            }),
+            400
+        )
+    return jsonify([
+        x.to_dict() for x in result
+    ])
+
+
+@bp.route("/detail", methods=['GET'])
+def bus_info_detail():
+    args = req.args
+    if "id" not in args:
+        return make_response(
+            jsonify({
+                "CODE": 400,
+                "MESSAGE": "Missing Bus ID."
+            }),
+            400
+        )
+    bus_id = args.get('id')
+    city_code = args.get('cityCode', default="1")
+    try:
+        if city_code == "11":
+            result = client.seoul.get_bus_detail(bus_id=bus_id)
+        elif city_code == "12":
+            result = client.gyeonggi.get_bus_detail(bus_id=bus_id)
+        elif city_code == "13":
+            result = client.incheon.get_bus_detail(bus_id=bus_id)
+        else:
+            return make_response(
+                jsonify({
+                    "CODE": 400,
+                    "MESSAGE": "Invalid City Code"
+                }),
+                400
+            )
+    except bus_api.EmptyData:
+        return jsonify({})
+    return jsonify(result.to_dict())
+
+
+@bp.route("/busRoute", methods=['GET'])
+def bus_route():
+    args = req.args
+    if "id" not in args:
+        return make_response(
+            jsonify({
+                "CODE": 400,
+                "MESSAGE": "Missing Bus ID."
+            }),
+            400
+        )
+    bus_id = args.get('id')
+    city_code = args.get('cityCode', default="1")
+    try:
+        if city_code == "11":
+            result = client.seoul.get_bus_route(bus_id=bus_id)
+        elif city_code == "12":
+            result = client.gyeonggi.get_bus_route(bus_id=bus_id)
+        elif city_code == "13":
+            result = client.incheon.get_bus_route(bus_id=bus_id)
+        else:
+            return make_response(
+                jsonify({
+                    "CODE": 400,
+                    "MESSAGE": "Invalid City Code"
+                }),
+                400
+            )
+    except bus_api.EmptyData:
+        return jsonify([])
+    return jsonify([
+        x.to_dict() for x in result
+    ])
+
+
+@bp.route("/location", methods=['GET'])
+def bus_location():
+    args = req.args
+    if "id" not in args:
+        return make_response(
+            jsonify({
+                "CODE": 400,
+                "MESSAGE": "Missing Bus ID."
+            }),
+            400
+        )
+    bus_id = args.get('id')
+    city_code = args.get('cityCode', default="1")
+    try:
+        if city_code == "11":
+            result = client.seoul.get_bus_location(bus_id=bus_id)
+        elif city_code == "12":
+            result = client.gyeonggi.get_bus_location(bus_id=bus_id)
+        elif city_code == "13":
+            result = client.incheon.get_bus_location(bus_id=bus_id)
+        else:
+            return make_response(
+                jsonify({
+                    "CODE": 400,
+                    "MESSAGE": "Invalid City Code"
+                }),
+                400
+            )
+    except bus_api.EmptyData:
+        return jsonify([])
+    return jsonify([
+        x.to_dict() for x in result
+    ])

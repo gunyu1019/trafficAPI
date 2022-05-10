@@ -129,9 +129,9 @@ class GyeonggiBIS(BaseClient):
         body = result['msgBody']
 
         item_list = body['busRouteList']
-        return [BusInfo.from_seoul(x) for x in get_list_from_ordered_dict(item_list)]
+        return [BusInfo.from_gyeonggi(x) for x in get_list_from_ordered_dict(item_list)]
 
-    def get_bus_details(self, bus_id: str):
+    def get_bus_detail(self, bus_id: str):
         data = self.get(
             path="/6410000/busrouteservice/getBusRouteInfoItem",
             params={
@@ -148,7 +148,7 @@ class GyeonggiBIS(BaseClient):
         body = result['msgBody']
 
         item_list = body['busRouteInfoItem']
-        return [BusInfoDetails.from_gyeonggi(x) for x in get_list_from_ordered_dict(item_list)]
+        return BusInfoDetails.from_gyeonggi(item_list)
 
     def get_bus_route(self, bus_id: str):
         data = self.get(
@@ -167,7 +167,17 @@ class GyeonggiBIS(BaseClient):
         body = result['msgBody']
 
         item_list = body['busRouteStationList']
-        return [BusStationRoute.from_gyeonggi(x) for x in get_list_from_ordered_dict(item_list)]
+
+        result = []
+        direction = 0
+        for bus_route in get_list_from_ordered_dict(item_list):
+            bus_route['direction'] = direction
+            if bus_route['turnYn'] == 'Y':
+                direction += 1
+            result.append(
+                BusStationRoute.from_gyeonggi(bus_route)
+            )
+        return result
 
     def get_bus_location(self, bus_id: str):
         data = self.get(

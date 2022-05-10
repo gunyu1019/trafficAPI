@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Union, Dict, Any
 
-from BusInfo import BusInfo
+from .BusInfo import BusInfo
 from app.utils import get_int
 
 
@@ -34,7 +34,7 @@ class BusInfoDetails(BusInfo):
         )
         self.min_term = min_term
         self.max_term = max_term
-        self.term = term or (min_term + max_term) / 2
+        self.term = term or int((min_term + max_term) / 2)
         self.departure = departure
         self.destination = destination
         self.departure_id = departure_id
@@ -54,7 +54,7 @@ class BusInfoDetails(BusInfo):
             st_type="SEOUL",
             departure=payload.get("stStationNm"),
             destination=payload.get("edStationNm"),
-            term=payload.get("term"),
+            term=get_int(payload.get("term")),
             first_time=datetime.strptime(first_time, "%Y%m%d%H%M%S"),
             last_time=datetime.strptime(last_time, "%Y%m%d%H%M%S"),
         )
@@ -73,13 +73,13 @@ class BusInfoDetails(BusInfo):
             region=payload.get("regionName"),
             district=get_int(payload.get("districtCd")),
             departure=payload.get("startStationName"),
-            departure_id=payload.get("startStationId"),
+            departure_id=get_int(payload.get("startStationId")),
             destination=payload.get("endStationName"),
-            destination_id=payload.get("endStationId"),
+            destination_id=get_int(payload.get("endStationId")),
             first_time=datetime.strptime(f"{now}-{first_time}", "%Y%m%d-%H:%M"),
             last_time=datetime.strptime(f"{now}-{last_time}", "%Y%m%d-%H:%M"),
-            min_term=payload.get("peekAlloc"),
-            max_term=payload.get("nPeekAlloc")
+            min_term=get_int(payload.get("peekAlloc")),
+            max_term=get_int(payload.get("nPeekAlloc"))
         )
 
     @classmethod
@@ -95,11 +95,28 @@ class BusInfoDetails(BusInfo):
             st_type="INCHEON",
             region=payload.get("ADMINNM"),
             departure=payload.get("ORIGIN_BSTOPNM"),
-            departure_id=payload.get("ORIGIN_BSTOPID"),
+            departure_id=get_int(payload.get("ORIGIN_BSTOPID")),
             destination=payload.get("DEST_BSTOPNM"),
-            destination_id=payload.get("DEST_BSTOPID"),
+            destination_id=get_int(payload.get("DEST_BSTOPID")),
             first_time=datetime.strptime(f"{now}-{first_time}", "%Y%m%d-%H%M"),
             last_time=datetime.strptime(f"{now}-{last_time}", "%Y%m%d-%H%M"),
-            min_term=payload.get("MIN_ALLOCGAP"),
-            max_term=payload.get("MAX_ALLOCGAP")
+            min_term=get_int(payload.get("MIN_ALLOCGAP")),
+            max_term=get_int(payload.get("MAX_ALLOCGAP"))
         )
+
+    def to_dict(self) -> Dict[str, Any]:
+        response = super().to_dict()
+        response["minTerm"] = self.min_term
+        response["maxTerm"] = self.max_term
+        response["term"] = self.term
+        response["departure"] = self.departure
+        response["destination"] = self.destination
+        response["departureId"] = self.departure_id
+        response["destinationId"] = self.destination_id
+        response["firstTime"] = None
+        response["lastTime"] = None
+        if self.first_time is not None:
+            response["firstTime"] = self.first_time.timestamp()
+        if self.last_time is not None:
+            response["lastTime"] = self.last_time.timestamp()
+        return response

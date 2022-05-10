@@ -128,7 +128,7 @@ class SeoulBIS(BaseClient):
             raise EmptyData()
 
         item_list = body['itemList']
-        return [BusInfoDetails.from_seoul(x) for x in get_list_from_ordered_dict(item_list)]
+        return BusInfoDetails.from_seoul(item_list)
 
     def get_bus_route(self, bus_id: str):
         data = self.get(
@@ -147,7 +147,18 @@ class SeoulBIS(BaseClient):
             raise EmptyData()
 
         item_list = body['itemList']
-        return [BusStationRoute.from_seoul(x) for x in get_list_from_ordered_dict(item_list)]
+
+        result = []
+        direction = 0
+        pre_direction = ""
+        for bus_route in get_list_from_ordered_dict(item_list):
+            if pre_direction != bus_route['direction']:
+                direction += 1
+            bus_route['directionId'] = direction
+            result.append(
+                BusStationRoute.from_seoul(bus_route)
+            )
+        return result
 
     def get_bus_location(self, bus_id: str):
         data = self.get(

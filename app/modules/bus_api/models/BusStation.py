@@ -130,7 +130,7 @@ class BusStation:
             st_type="CHANGWON"
         )
 
-    def to_data(self) -> dict:
+    def to_dict(self) -> dict:
         if self.type == "SEOUL":
             final_id = self.id2
         else:

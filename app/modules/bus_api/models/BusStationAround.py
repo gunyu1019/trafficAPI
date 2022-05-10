@@ -160,7 +160,7 @@ class BusStationAround(BusStation):
             distance=int(payload.get("distance", 0))
         )
 
-    def to_data(self) -> dict:
-        response = super().to_data()
+    def to_dict(self) -> dict:
+        response = super().to_dict()
         response['distance'] = self.distance
         return response

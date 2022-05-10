@@ -41,7 +41,6 @@ class BusStationRoute(BusStation):
 
     @classmethod
     def from_seoul(cls, payload: Dict[str, Any]):
-        # direction 조작 필요
         pos_x = payload.get('gpsX')
         pos_y = payload.get('gpsY')
         if pos_x is not None:
@@ -50,14 +49,14 @@ class BusStationRoute(BusStation):
             pos_y = float(pos_y)
         return cls(
             name=payload['stationNm'],
-            station_id1=int(payload['stationId']),
+            station_id1=int(payload['station']),
             station_id2=payload['arsId'],
             pos_x=pos_x,
             pos_y=pos_y,
             st_type="SEOUL",
             index=int(payload["seq"]),
-            direction=get_int(payload.get("direction", 0)),
-            roundabout=bool(payload.get("transYn", False)),
+            direction=get_int(payload.get("directionId", 0)),
+            roundabout=(True if payload.get('transYn', 'N') == 'Y' else False),
             section_distance=get_int(payload.get("fullSectDist")),
             section_speed=get_int(payload.get("sectSpd"))
         )
@@ -82,7 +81,7 @@ class BusStationRoute(BusStation):
             district=payload.get("districtCd"),
             index=payload["stationSeq"],
             direction=get_int(payload.get("direction", 0)),
-            roundabout=bool(payload.get("turnYn", False)),
+            roundabout=(True if payload.get('turnYn', 'N') == 'Y' else False),
         )
 
     @classmethod
@@ -114,8 +113,8 @@ class BusStationRoute(BusStation):
             roundabout=bool(payload.get("roundabout", False)),
         )
 
-    def to_data(self) -> dict:
-        response = super().to_data()
+    def to_dict(self) -> Dict[str, Any]:
+        response = super().to_dict()
         response['index'] = self.index
         response['direction'] = self.direction
         response['roundabout'] = self.roundabout
