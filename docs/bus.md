@@ -437,10 +437,10 @@ https://api.yhs.kr/bus/route
     </tr>
     <tr>
         <th>isArrival</th>
-        <td>(곧)도착 유무</td>
+        <td>도착 유무</td>
         <td>boolean</td>
-        <td>O</td>
-        <td>false</td>
+        <td>X</td>
+        <td>null</td>
         <td></td>
     </tr>
     <tr>

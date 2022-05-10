@@ -1,7 +1,8 @@
 from datetime import datetime
-from typing import Union, List, Dict, Any
-from app.utils import get_float, get_int, optional_int_to_str
+from typing import Union, Dict, Any
+
 from BusInfo import BusInfo
+from app.utils import get_int
 
 
 class BusInfoDetails(BusInfo):

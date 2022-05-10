@@ -67,10 +67,7 @@ class BusRouteInfo:
                         getattr(arrival, "seat{0}".format(key), None)
                     ),
                     "prev_count": getattr(arrival, "prev_count{0}".format(key), None),
-                    "is_full": True if getattr(arrival, "is_full{0}".format(key), None) == 0 else False,
-                    "is_arrival": getattr(arrival, "prev_count{0}".format(key)) <= 1
-                    if isinstance(getattr(arrival, "prev_count{0}".format(key), None), int)
-                    else False
+                    "is_full": True if getattr(arrival, "is_full{0}".format(key), None) == 0 else False
                 } for key in range(1, 3) if arrival is not None
             ]
         )
@@ -93,9 +90,6 @@ class BusRouteInfo:
                 "prev_count": x.prev_count,
                 "prev_station": x.now_station,
                 "is_full": True if x.seat == 0 else False,
-                "is_arrival": x.prev_count <= 1
-                if isinstance(x.prev_count, int)
-                else False,
                 "is_last": x.is_last
             }) for x in arrival
         ]
@@ -120,7 +114,6 @@ class BusRouteInfo:
                         else None
                     ),
                     "prev_count": getattr(data, "prev_count{0}".format(key), 0),
-                    "is_arrival": getattr(data, "prev_count{0}".format(key), 0) <= 1,
                     "lowBus": getattr(data, "low_bus{0}".format(key), 0)
                 } for key in range(1, 3) if getattr(data, "prev_count{0}".format(key), None) is not None
             ]
@@ -137,7 +130,6 @@ class BusRouteInfo:
                     "type": None,
                     "time": data.time,
                     "prev_count": data.prev_count,
-                    "is_arrival": data.prev_count <= 1
                 }
             ] if data.status else []
         )
@@ -155,9 +147,6 @@ class BusRouteInfo:
                 "type": int(x.low_bus),
                 "time": x.time,
                 "prev_count": x.prev_count,
-                "is_arrival": x.prev_count <= 1
-                if isinstance(x.prev_count, int)
-                else False
             }) for x in arrival
         ]
         return new_cls
@@ -175,9 +164,6 @@ class BusRouteInfo:
                 "type": None,
                 "time": x.time,
                 "prev_count": x.prev_count,
-                "is_arrival": x.prev_count <= 1
-                if isinstance(x.prev_count, int)
-                else False,
                 "car_number": x.car_number,
             }) for x in arrival
         ]
