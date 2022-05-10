@@ -1,6 +1,10 @@
 from app.modules.baseClient import BaseClient
 from .models.BusStation import BusStation
 from .models.BusRoute import BusRoute
+from .models.BusInfo import BusInfo
+from .models.BusInfoDetails import BusInfoDetails
+from .models.BusVehicle import BusVehicle
+from .models.BusStationRoute import BusStationRoute
 from .models.BusStationAround import BusStationAround
 from .models.IncheonArrival import IncheonBusArrival
 from app.modules.errors import *
@@ -8,14 +12,22 @@ from app.utils import get_list_from_ordered_dict
 
 
 class IncheonBIS(BaseClient):
-    def __init__(self, token: str, arrival_token: str = None):
+    def __init__(
+            self,
+            token: str = None,
+            arrival_token: str = None,
+            bus_token: str = None,
+            location_token: str = None
+    ):
         super().__init__("http://apis.data.go.kr")
         self.token = token
         self.arrival_token = arrival_token or token
+        self.bus_token = bus_token
+        self.location_token = location_token or bus_token
 
-    def request(self, arrival_token: bool = False, **kwargs):
+    def request(self, token: str, **kwargs):
         params = {
-            'serviceKey': self.token if not arrival_token else self.arrival_token
+            'serviceKey': token
         }
         return super(IncheonBIS, self).request(_default_params=params, _default_xml=True, **kwargs)
 
@@ -31,7 +43,8 @@ class IncheonBIS(BaseClient):
                 "bstopNm": name,
                 "numOfRows": rows,
                 "pageNo": page
-            }
+            },
+            token=self.token
         )
         result = data['ServiceResult']
 
@@ -57,7 +70,8 @@ class IncheonBIS(BaseClient):
                 "LNG": pos_y,
                 "numOfRows": rows,
                 "pageNo": page
-            }
+            },
+            token=self.token
         )
         result = data['ServiceResult']
 
@@ -81,7 +95,8 @@ class IncheonBIS(BaseClient):
                 "bstopId": station_id,
                 "numOfRows": rows,
                 "pageNo": page
-            }
+            },
+            token=self.token
         )
         result = data['ServiceResult']
 
@@ -105,7 +120,8 @@ class IncheonBIS(BaseClient):
                 "bstopId": station_id,
                 "numOfRows": rows,
                 "pageNo": page
-            }
+            },
+            token=self.token
         )
         result = data['ServiceResult']
 
@@ -130,7 +146,7 @@ class IncheonBIS(BaseClient):
                 "numOfRows": rows,
                 "pageNo": page
             },
-            arrival_token=True
+            token=self.arrival_token
         )
         result = data['ServiceResult']
 
@@ -141,3 +157,103 @@ class IncheonBIS(BaseClient):
             raise EmptyData()
         item_list = body['itemList']
         return [IncheonBusArrival(x) for x in get_list_from_ordered_dict(item_list)]
+
+    def get_bus(
+            self,
+            name: str,
+            rows: int = 100,
+            page: int = 1
+    ):
+        data = self.get(
+            path="/6280000/busRouteService/getBusRouteNo",
+            params={
+                "routeNo": name,
+                "numOfRows": rows,
+                "pageNo": page
+            },
+            token=self.bus_token
+        )
+        result = data['ServiceResult']
+
+        # HEAD AND BODY
+        _ = result['msgHeader']
+        body = result['msgBody']
+        if body is None:
+            raise EmptyData()
+        item_list = body['itemList']
+        return [BusInfo.from_incheon(x) for x in get_list_from_ordered_dict(item_list)]
+
+    def get_bus_detail(
+            self,
+            bus_id: str,
+            rows: int = 100,
+            page: int = 1
+    ):
+        data = self.get(
+            path="/6280000/busRouteService/getBusRouteId",
+            params={
+                "routeId": bus_id,
+                "numOfRows": rows,
+                "pageNo": page
+            },
+            token=self.bus_token
+        )
+        result = data['ServiceResult']
+
+        # HEAD AND BODY
+        _ = result['msgHeader']
+        body = result['msgBody']
+        if body is None:
+            raise EmptyData()
+        item_list = body['itemList']
+        return [BusInfoDetails.from_incheon(x) for x in get_list_from_ordered_dict(item_list)]
+
+    def get_bus_route(
+            self,
+            bus_id: str,
+            rows: int = 100,
+            page: int = 1
+    ):
+        data = self.get(
+            path="/6280000/busRouteService/getBusRouteSectionList",
+            params={
+                "routeId": bus_id,
+                "numOfRows": rows,
+                "pageNo": page
+            },
+            token=self.bus_token
+        )
+        result = data['ServiceResult']
+
+        # HEAD AND BODY
+        _ = result['msgHeader']
+        body = result['msgBody']
+        if body is None:
+            raise EmptyData()
+        item_list = body['itemList']
+        return [BusStationRoute.from_incheon(x) for x in get_list_from_ordered_dict(item_list)]
+
+    def get_bus_location(
+            self,
+            bus_id: str,
+            rows: int = 100,
+            page: int = 1
+    ):
+        data = self.get(
+            path="/6280000/busLocationService/getBusRouteLocation",
+            params={
+                "routeId": bus_id,
+                "numOfRows": rows,
+                "pageNo": page
+            },
+            token=self.location_token
+        )
+        result = data['ServiceResult']
+
+        # HEAD AND BODY
+        _ = result['msgHeader']
+        body = result['msgBody']
+        if body is None:
+            raise EmptyData()
+        item_list = body['itemList']
+        return [BusVehicle.from_incheon(x) for x in get_list_from_ordered_dict(item_list)]

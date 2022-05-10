@@ -2,6 +2,10 @@ from app.modules.baseClient import BaseClient
 from .models.SeoulArrival import SeoulBusArrival
 from .models.BusStation import BusStation
 from .models.BusStationAround import BusStationAround
+from .models.BusStationRoute import BusStationRoute
+from .models.BusInfo import BusInfo
+from .models.BusInfoDetails import BusInfoDetails
+from .models.BusVehicle import BusVehicle
 from app.modules.errors import *
 from app.utils import get_list_from_ordered_dict
 
@@ -11,12 +15,12 @@ class SeoulBIS(BaseClient):
             self,
             token: str = None,
             bus_token: str = None,
-            route_token: str = None
+            location_token: str = None
     ):
         super().__init__("http://ws.bus.go.kr")
         self.token = token
         self.bus_token = bus_token
-        self.route_token = route_token
+        self.location_token = location_token
 
     def request(self, token: str, **kwargs):
         params = {
@@ -35,7 +39,7 @@ class SeoulBIS(BaseClient):
         result = data['ServiceResult']
 
         # HEAD AND BODY
-        head = result['msgHeader']
+        _ = result['msgHeader']
         body = result['msgBody']
         if body is None:
             raise EmptyData()
@@ -61,7 +65,7 @@ class SeoulBIS(BaseClient):
         result = data['ServiceResult']
 
         # HEAD AND BODY
-        head = result['msgHeader']
+        _ = result['msgHeader']
         body = result['msgBody']
         if body is None:
             raise EmptyData()
@@ -80,7 +84,7 @@ class SeoulBIS(BaseClient):
         result = data['ServiceResult']
 
         # HEAD AND BODY
-        head = result['msgHeader']
+        _ = result['msgHeader']
         body = result['msgBody']
         if body is None:
             raise EmptyData()
@@ -99,10 +103,67 @@ class SeoulBIS(BaseClient):
         result = data['ServiceResult']
 
         # HEAD AND BODY
-        head = result['msgHeader']
+        _ = result['msgHeader']
         body = result['msgBody']
         if body is None:
             raise EmptyData()
 
         item_list = body['itemList']
-        return [SeoulBusArrival(x) for x in get_list_from_ordered_dict(item_list)]
+        return [BusInfo.from_seoul(x) for x in get_list_from_ordered_dict(item_list)]
+
+    def get_bus_detail(self, bus_id: str):
+        data = self.get(
+            path="/api/rest/busRouteInfo/getRouteInfo",
+            params={
+                "busRouteId": bus_id
+            },
+            token=self.bus_token
+        )
+        result = data['ServiceResult']
+
+        # HEAD AND BODY
+        _ = result['msgHeader']
+        body = result['msgBody']
+        if body is None:
+            raise EmptyData()
+
+        item_list = body['itemList']
+        return [BusInfoDetails.from_seoul(x) for x in get_list_from_ordered_dict(item_list)]
+
+    def get_bus_route(self, bus_id: str):
+        data = self.get(
+            path="/api/rest/busRouteInfo/getStaionByRoute",
+            params={
+                "busRouteId": bus_id
+            },
+            token=self.bus_token
+        )
+        result = data['ServiceResult']
+
+        # HEAD AND BODY
+        _ = result['msgHeader']
+        body = result['msgBody']
+        if body is None:
+            raise EmptyData()
+
+        item_list = body['itemList']
+        return [BusStationRoute.from_seoul(x) for x in get_list_from_ordered_dict(item_list)]
+
+    def get_bus_location(self, bus_id: str):
+        data = self.get(
+            path="/api/rest/buspos/getBusPosByRtid",
+            params={
+                "busRouteId": bus_id
+            },
+            token=self.location_token
+        )
+        result = data['ServiceResult']
+
+        # HEAD AND BODY
+        _ = result['msgHeader']
+        body = result['msgBody']
+        if body is None:
+            raise EmptyData()
+
+        item_list = body['itemList']
+        return [BusVehicle.from_seoul(x) for x in get_list_from_ordered_dict(item_list)]

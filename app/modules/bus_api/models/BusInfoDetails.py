@@ -60,7 +60,7 @@ class BusInfoDetails(BusInfo):
         )
 
     @classmethod
-    def from_gyeonggi(cls, payload: Dict[str, Any], payload_details: Dict[str, Any]):
+    def from_gyeonggi(cls, payload: Dict[str, Any]):
         bus_type = get_int(payload.get("routeTypeCd"))
         first_time = payload.get("upFirstTime", "00:00")
         last_time = payload.get("upLastTime", "00:00")
