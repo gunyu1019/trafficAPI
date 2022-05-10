@@ -74,15 +74,15 @@ https://api.yhs.kr/bus/station
     <tr>
         <th>displayId</th>
         <td>정류장 ID(사용자)</td>
-        <td>integer</td>
+        <td>string, List[string]</td>
         <td>X</td>
         <td></td>
-        <td>수도권 정류장 ID(5자리)</td>
+        <td>수도권 정류장 ID(4-5자리)</td>
     </tr>
     <tr>
         <th>id</th>
         <td>정류장 ID</td>
-        <td>integer</td>
+        <td>string</td>
         <td>O</td>
         <td></td>
         <td>도착정보 조회를 위한 ID값</td>
@@ -114,7 +114,7 @@ https://api.yhs.kr/bus/station
     <tr>
         <th>stationId</th>
         <td>정류장 ID(개발자)</td>
-        <td>integer</td>
+        <td>string, List[string]</td>
         <td>O</td>
         <td></td>
         <td></td>
@@ -217,7 +217,7 @@ https://api.yhs.kr/bus/station/around
     <tr>
         <th>displayId</th>
         <td>정류장 ID(사용자)</td>
-        <td>integer</td>
+        <td>string, List[string]</td>
         <td>X</td>
         <td></td>
         <td>수도권 정류장 ID(5자리)</td>
@@ -233,7 +233,7 @@ https://api.yhs.kr/bus/station/around
     <tr>
         <th>id</th>
         <td>정류장 ID</td>
-        <td>integer</td>
+        <td>string</td>
         <td>O</td>
         <td></td>
         <td>도착정보 조회를 위한 ID값</td>
@@ -265,7 +265,7 @@ https://api.yhs.kr/bus/station/around
     <tr>
         <th>stationId</th>
         <td>정류장 ID(개발자)</td>
-        <td>integer</td>
+        <td>string, List[string]</td>
         <td>O</td>
         <td></td>
         <td></td>
@@ -325,6 +325,14 @@ https://api.yhs.kr/bus/route
             12: 경기 지역<br/>
             13: 인천 지역<br/>
         </td>
+    </tr>
+    <tr>
+        <th>version</th>
+        <td>데이터모델 버전</td>
+        <td>string</td>
+        <td>X</td>
+        <td>v1</td>
+        <td>v2 사용 권장 /  2022년 하반기 삭제 예정</td>
     </tr>
 </table>
 
@@ -478,6 +486,7 @@ https://api.yhs.kr/bus/route
 </table>
 
 * **노선 유형**
+> 요청를 보낼 때, Header 에다가 version 키에 v2 값을 적용했을 경우 아래의 표와 같이 작동합니다.
 <table>
     <tr>
         <th>키</th>
@@ -485,138 +494,138 @@ https://api.yhs.kr/bus/route
         <th>지역</th>
     </tr>
     <tr>
-        <th>1001</th>
+        <th>1101</th>
         <td><img src="https://via.placeholder.com/15/8b4513/000?text=+"> 공항버스</td>
         <td rowspan="8">서울</td>
     </tr>
     <tr>
-        <th>1002</th>
+        <th>1102</th>
         <td><img src="https://via.placeholder.com/15/5bb025/000?text=+"> 마을버스</td>
     </tr>
     <tr>
-        <th>1003</th>
+        <th>1103</th>
         <td><img src="https://via.placeholder.com/15/3d5bab/000?text=+"> 간선버스</td>
     </tr>
     <tr>
-        <th>1004</th>
+        <th>1104</th>
         <td><img src="https://via.placeholder.com/15/5bb025/000?text=+"> 지선버스</td>
     </tr>
     <tr>
-        <th>1005</th>
+        <th>1105</th>
         <td><img src="https://via.placeholder.com/15/f99d1c/000?text=+"> 순환버스</td>
     </tr>
     <tr>
-        <th>1006</th>
+        <th>1106</th>
         <td><img src="https://via.placeholder.com/15/F72f08/000?text=+"> 광역버스</td>
     </tr>
     <tr>
-        <th>1009</th>
+        <th>1109</th>
         <td>페지노선</td>
     </tr>
     <tr>
-        <th>1000</th>
+        <th>1100</th>
         <td>공용버스</td>
     </tr>
     <tr>
-        <th>2011</th>
+        <th>1211</th>
         <td><img src="https://via.placeholder.com/15/FF0000/000?text=+"> 직행좌석 시내버스</td>
         <td rowspan="16">경기</td>
     </tr>
     <tr>
-        <th>2012</th>
+        <th>1212</th>
         <td><img src="https://via.placeholder.com/15/0075C8/000?text=+"> 좌석 시내버스</td>
     </tr>
     <tr>
-        <th>2013</th>
+        <th>1213</th>
         <td><img src="https://via.placeholder.com/15/33CC99/000?text=+"> 일반 시내버스</td>
     </tr>
     <tr>
-        <th>2014</th>
+        <th>1214</th>
         <td><img src="https://via.placeholder.com/15/000000/000?text=+"> 광역급행 시내버스</td>
     </tr>
     <tr>
-        <th>2015</th>
+        <th>1215</th>
         <td><img src="https://via.placeholder.com/15/B62367/000?text=+"> 맞춤형버스(舊 따복버스)</td>
     </tr>
     <tr>
-        <th>2016</th>
+        <th>1216</th>
         <td><img src="https://via.placeholder.com/15/FF0000/000?text=+"> 경기순환버스</td>
     </tr>
     <tr>
-        <th>2021</th>
+        <th>1221</th>
         <td><img src="https://via.placeholder.com/15/FF0000/000?text=+"> 직행좌석 농어촌버스</td>
     </tr>
     <tr>
-        <th>2022</th>
+        <th>1222</th>
         <td><img src="https://via.placeholder.com/15/0075C8/000?text=+"> 좌석 농어촌버스</td>
     </tr>
     <tr>
-        <th>2023</th>
+        <th>1223</th>
         <td><img src="https://via.placeholder.com/15/33CC99/000?text=+"> 일반 농어촌버스</td>
     </tr>
     <tr>
-        <th>2030</th>
+        <th>1230</th>
         <td><img src="https://via.placeholder.com/15/F99D1C/000?text=+"> 마을버스</td>
     </tr>
     <tr>
-        <th>2041</th>
+        <th>1241</th>
         <td>고속 시외버스</td>
     </tr>
     <tr>
-        <th>2042</th>
+        <th>1242</th>
         <td><img src="https://via.placeholder.com/15/0075C8/000?text=+"> 좌석 시외버스</td>
     </tr>
     <tr>
-        <th>2043</th>
+        <th>1243</th>
         <td><img src="https://via.placeholder.com/15/a800ff/000?text=+"> 일반 시외버스</td>
     </tr>
     <tr>
-        <th>2051</th>
+        <th>1251</th>
         <td><img src="https://via.placeholder.com/15/aa9872/000?text=+"> 리무진 공항버스</td>
     </tr>
     <tr>
-        <th>2052</th>
+        <th>1252</th>
         <td><img src="https://via.placeholder.com/15/0075C8/000?text=+"> 좌석 공항버스</td>
     </tr>
     <tr>
-        <th>2053</th>
+        <th>1253</th>
         <td><img src="https://via.placeholder.com/15/8b4513/000?text=+"> 일반 공항버스</td>
     </tr>
     <tr>
-        <th>3001</th>
+        <th>1301</th>
         <td><img src="https://via.placeholder.com/15/5bb025/000?text=+"> 지선버스</td>
         <td rowspan="9">인천</td>
     </tr>
     <tr>
-        <th>3002</th>
+        <th>1302</th>
         <td><img src="https://via.placeholder.com/15/3366cc/000?text=+"> 간선버스</td>
     </tr>
     <tr>
-        <th>3003</th>
+        <th>1303</th>
         <td><img src="https://via.placeholder.com/15/3d5bab/000?text=+"> 좌석버스</td>
     </tr>
     <tr>
-        <th>3004</th>
+        <th>1304</th>
         <td><img src="https://via.placeholder.com/15/f72f08/000?text=+"> 광역버스</td>
     </tr>
     <tr>
-        <th>3005</th>
+        <th>1305</th>
         <td>리무진 버스</td>
     </tr>
     <tr>
-        <th>3006</th>
+        <th>1306</th>
         <td><img src="https://via.placeholder.com/15/5bb025/000?text=+"> 마을버스</td>
     </tr>
     <tr>
-        <th>3007</th>
+        <th>1307</th>
         <td>순환버스</td>
     </tr>
     <tr>
-        <th>3008</th>
+        <th>1308</th>
         <td><img src="https://via.placeholder.com/15/000/000?text=+"> 급행간선버스</td>
     </tr>
     <tr>
-        <th>3009</th>
+        <th>1309</th>
         <td><img src="https://via.placeholder.com/15/5bb025/000?text=+"> 지선순환버스</td>
     </tr>
 </table>
