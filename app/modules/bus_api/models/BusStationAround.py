@@ -86,7 +86,7 @@ class BusStationAround(BusStation):
         station_id = int(payload['BSTOPID'])
         try:
             station_info: BusStation = client.get_station_id(station_id=station_id)
-        except EmptyData:
+        except (EmptyData, AttributeError):
             station_id2 = None
             center = None
             region = None

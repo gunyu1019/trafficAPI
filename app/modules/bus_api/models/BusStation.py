@@ -67,7 +67,7 @@ class BusStation:
     def from_incheon(
             cls,
             payload: Dict[str, Any],
-            _=None
+            **kwargs
     ):
         pos_x = payload.get('POSX')
         pos_y = payload.get('POSY')
