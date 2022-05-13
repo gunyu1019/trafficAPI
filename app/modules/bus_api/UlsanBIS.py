@@ -59,7 +59,8 @@ class UlsanBIS(BaseClient):
                 "destination": station.get("STOPEDID"),
                 "name": station.get("BRTNO"),
                 "type": station.get("BRTTYPE"),
-                "direction": station.get("DIRECTION")
+                "direction": station.get("DIRECTION"),
+                "displayId": station.get("DISPLAYID")
             })
         return pandas.DataFrame(
             rows,

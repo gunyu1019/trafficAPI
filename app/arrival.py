@@ -89,13 +89,13 @@ def get_changwon(client: bus_api.ChangwonBIS, arrival_data: ChangwonBusArrival):
     bus_data = client.get_bus_data()
 
     route = bus_data[bus_data['id'] == arrival_data.id].to_dict('records')[0]
-    if route['color'] == 2:
+    if route['color'] == 2:  # 간선 버스 (#54CBCB)
         route_type = 1
-    elif route['color'] == 5:
+    elif route['color'] == 5:  # 좌석 버스 (#FF9956)
         route_type = 3
-    elif route['color'] == 8:
+    elif route['color'] == 8:  # 김해 경유 버스 (#9D9488)
         route_type = 4
-    else:
+    else:  # 지선 버스 (#92CA63)
         route_type = 2
 
     return BusRouteInfo.from_changwon(arrival_data, route, route_type)
