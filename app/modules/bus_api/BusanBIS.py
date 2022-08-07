@@ -97,3 +97,17 @@ class BusanBIS(BaseClient):
 
         item_list = body['item']
         return [BusanBusArrival(x) for x in get_list_from_ordered_dict(item_list)]
+
+    def update_station(self):
+        data = self.get(
+            path="/6260000/BusanBIMS/busStopList",
+            params={
+                "pageNo": 1,
+                "numOfRows": 10000
+            },
+            converted=False
+        )
+        with open(
+            os.path.join(directory, "data", "busan_busstop.xml"), "w", encoding='utf8'
+        ) as file:
+            file.write(data)

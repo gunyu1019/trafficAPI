@@ -120,3 +120,23 @@ class ChangwonBIS(BaseClient):
 
         item_list = body['row']
         return [ChangwonBusArrival(x) for x in get_list_from_ordered_dict(item_list)]
+
+    def update_update(self):
+        data = self.get(
+            path="/rest/bis/Station/",
+            converted=False
+        )
+        with open(
+            os.path.join(directory, "data", "changwon_busstop.xml"), "w", encoding='utf8'
+        ) as file:
+            file.write(data)
+
+    def update_bus_info(self):
+        data = self.get(
+            path="/rest/bis/Bus",
+            converted=False
+        )
+        with open(
+            os.path.join(directory, "data", "changwon_bus.xml"), "w", encoding='utf8'
+        ) as file:
+            file.write(data)

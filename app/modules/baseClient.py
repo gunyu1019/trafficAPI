@@ -14,7 +14,7 @@ class BaseClient:
             method: str,
             path: str,
             _default_params: Dict[str, Any] = None,
-            converted: bool = True,
+            convert_type: bool = True,
             _default_xml: bool = False,
             **kwargs
     ):
@@ -32,7 +32,7 @@ class BaseClient:
             method, url, **kwargs
         )
 
-        if not converted:
+        if not convert_type:
             return response.text
 
         if response.headers.get("Content-Type").startswith("application/json"):

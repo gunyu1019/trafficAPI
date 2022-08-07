@@ -68,7 +68,6 @@ class UlsanBIS(BaseClient):
             ])
 
     def get_station(self, name: str):
-        self.update_bus_info()
         data = self.get_station_data()
         result = data[data['name'].str.contains(name)].to_dict('records')
         return [BusStation.from_ulsan(x) for x in result]
