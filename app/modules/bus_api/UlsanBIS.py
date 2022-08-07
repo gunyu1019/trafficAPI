@@ -46,7 +46,7 @@ class UlsanBIS(BaseClient):
                 "name": station.get("STOPNAME"),
                 "posX": get_float(station.get("STOPX")),
                 "posY": get_float(station.get("STOPY")),
-                "displayId": 0
+                "displayId": station.get("DISPLAYID"),
             })
         return pandas.DataFrame(rows, columns=['id', 'name', 'posX', 'posY', 'displayId'])
 
@@ -59,8 +59,7 @@ class UlsanBIS(BaseClient):
                 "destination": station.get("STOPEDID"),
                 "name": station.get("BRTNO"),
                 "type": station.get("BRTTYPE"),
-                "direction": station.get("DIRECTION"),
-                "displayId": station.get("DISPLAYID")
+                "direction": station.get("DIRECTION")
             })
         return pandas.DataFrame(
             rows,
@@ -69,6 +68,7 @@ class UlsanBIS(BaseClient):
             ])
 
     def get_station(self, name: str):
+        self.update_bus_info()
         data = self.get_station_data()
         result = data[data['name'].str.contains(name)].to_dict('records')
         return [BusStation.from_ulsan(x) for x in result]
@@ -98,6 +98,34 @@ class UlsanBIS(BaseClient):
         for bus_id in bus_ids:
             result += bus_data[bus_data['id'] == bus_id].to_dict("records")
         return [BusRoute.from_ulsan(x) for x in result]
+
+    def update_station(self):
+        data = self.get(
+            path="/UlsanAPI/BusStopInfo.xo",
+            params={
+                "pageNo": 1,
+                "numOfRows": 10000
+            },
+            converted=False
+        )
+        with open(
+            os.path.join(directory, "data", "ulsan_busstop.xml"), "w", encoding='utf8'
+        ) as file:
+            file.write(data)
+
+    def update_bus_info(self):
+        data = self.get(
+            path="/UlsanAPI/RouteInfo.xo",
+            params={
+                "pageNo": 1,
+                "numOfRows": 1000
+            },
+            converted=False
+        )
+        with open(
+            os.path.join(directory, "data", "ulsan_bus.xml"), "w", encoding='utf8'
+        ) as file:
+            file.write(data)
 
     def get_arrival(self, station_id: int):
         data = self.get(
