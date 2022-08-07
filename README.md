@@ -31,14 +31,19 @@
 * 부산·울산권(부울권): 
   * [부산광역시](http://bus.busan.go.kr/)
   * [울산광역시](http://its.ulsan.kr/)
-  * [창원시](http://bus.changwon.go.kr/)
-  * [김해시](http://bus.gimhae.go.kr/) - 국가대중교통정보센터(TAGO)
+  * [경상남도 창원시](http://bus.changwon.go.kr/)
+  * [경상남도 김해시](http://bus.gimhae.go.kr/) - 국가대중교통정보센터(TAGO)
 * ~~광주권:~~ - 지원 예정
   * [광주광역시](http://bus.gwangju.go.kr/)
   * [나주시](http://bus.gwangju.go.kr/)
-  * [담양군](http://bis.damyang.go.kr/)
-  * 장성군(일부) - 광주광역시
-  * [화순군](http://bis.hwasun.go.kr/main/main)
+* ~~대전권:~~ - 검토 중 (일부 지역은 제외될 수 있습니다.)
+  * 대전광역시
+  * 세종특별자치시 (BRT 포함)
+  * 충청북도 청주시
+  * 충청북도 옥천군
+  * 충청남도 계룡시
+  * 충청남도 공주시
+  * 충청남도 논산시
 
 ### 지하철 역사 / 실시간 도착 / 시간표 정보
 * 서울교통공사
