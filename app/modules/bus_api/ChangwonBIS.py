@@ -30,11 +30,11 @@ class ChangwonBIS(BaseClient):
         ) as fp:
             self._bus_data = xmltodict.parse(fp.read())
 
-    def request(self, arrival_token: bool = False, **kwargs):
+    async def request(self, arrival_token: bool = False, **kwargs):
         params = {
             'serviceKey': self.token if not arrival_token else self.arrival_token
         }
-        return super(ChangwonBIS, self).request(_default_params=params, _default_xml=True, **kwargs)
+        return await super(ChangwonBIS, self).request(_default_params=params, _default_xml=True, **kwargs)
 
     def get_station_data(self):
         rows = []
@@ -102,8 +102,8 @@ class ChangwonBIS(BaseClient):
                 )
         return result
 
-    def get_arrival(self, station_id: int):
-        data = self.get(
+    async def get_arrival(self, station_id: int):
+        data = await self.get(
             path="/rest/bis/BusArrives/",
             params={
                 "station": station_id
@@ -121,8 +121,8 @@ class ChangwonBIS(BaseClient):
         item_list = body['row']
         return [ChangwonBusArrival(x) for x in get_list_from_ordered_dict(item_list)]
 
-    def update_update(self):
-        data = self.get(
+    async def update_update(self):
+        data = await self.get(
             path="/rest/bis/Station/",
             converted=False
         )
@@ -131,8 +131,8 @@ class ChangwonBIS(BaseClient):
         ) as file:
             file.write(data)
 
-    def update_bus_info(self):
-        data = self.get(
+    async def update_bus_info(self):
+        data = await self.get(
             path="/rest/bis/Bus",
             converted=False
         )

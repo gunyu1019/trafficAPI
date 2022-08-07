@@ -34,7 +34,7 @@ with open(os.path.join(directory, "data", "station_position.csv"), 'r', encoding
 
 
 @bp.route("/arrival", methods=['GET'])
-def arrival_info():
+async def arrival_info():
     args = req.args
     if "id" not in args:
         return make_response(
@@ -63,7 +63,7 @@ def arrival_info():
         )
     info = namedTupleModel.StationInfo(**pre_dict_data[0])
     try:
-        arrival_data = arrival_client.arrival_info(name=info.name, start_index=1, end_index=1000)
+        arrival_data = await arrival_client.arrival_info(name=info.name, start_index=1, end_index=1000)
     except EmptyData:
         arrival_data = []
 
@@ -84,12 +84,12 @@ def arrival_info():
         ].to_dict('records')
     transform = [namedTupleModel.StationInfo(**x) for x in pre_transform if x['stationId'] != info.stationId]
 
-    def transform_arrival_loop(_arrival_data, _station: namedTupleModel.StationInfo) -> List[
+    async def transform_arrival_loop(_arrival_data, _station: namedTupleModel.StationInfo) -> List[
         realtimeArrival.RealtimeArrival
     ]:
         if _station.name == info.name:
             return _arrival_data
-        transform_arrival_data = arrival_client.arrival_info(name=_station.name, start_index=1, end_index=1000)
+        transform_arrival_data = await arrival_client.arrival_info(name=_station.name, start_index=1, end_index=1000)
         return transform_arrival_data
 
     result = {
@@ -100,7 +100,7 @@ def arrival_info():
             station.subway: {
                 "arrival": [
                     transform_arrival.to_dict(add_subway=True)
-                    for transform_arrival in transform_arrival_loop(arrival_data, station)
+                    for transform_arrival in await transform_arrival_loop(arrival_data, station)
                     if int(transform_arrival.station) == station.stationId
                 ],
                 "displayName": station.name,
@@ -114,7 +114,7 @@ def arrival_info():
 
 
 @bp.route("/station", methods=['GET'])
-def station_query():
+async def station_query():
     args = req.args
     if "name" not in args:
         return make_response(
@@ -126,7 +126,7 @@ def station_query():
         )
     name = args['name']
     try:
-        station_data = metro_client.query(name=name, start_index=1, end_index=1000)
+        station_data = await metro_client.query(name=name, start_index=1, end_index=1000)
     except EmptyData:
         return make_response(
             jsonify({
@@ -141,7 +141,7 @@ def station_query():
 
 
 @bp.route("/timetable", methods=['GET'])
-def timetable_info():
+async def timetable_info():
     args = req.args
     if "id" not in args:
         return make_response(
@@ -180,7 +180,7 @@ def timetable_info():
             400
         )
     try:
-        timetable_data = metro_client.timetable(
+        timetable_data = await metro_client.timetable(
             station_id=station_id,
             start_index=1,
             end_index=1000,
@@ -195,7 +195,7 @@ def timetable_info():
 
 
 @bp.route("/around", methods=['GET'])
-def around_info():
+async def around_info():
     args = req.args
     if "posX" not in args or "posY" not in args:
         return make_response(
@@ -219,7 +219,7 @@ def around_info():
     result = {}
     for name in stations:
         try:
-            data = metro_client.query(name=name, start_index=1, end_index=1000)
+            data = await metro_client.query(name=name, start_index=1, end_index=1000)
             relative_pos_x = data[0].pos_x - pos_x
             relative_pos_y = data[0].pos_y - pos_y
             result[name] = {

@@ -72,7 +72,7 @@ class BusStationAround(BusStation):
         )
 
     @classmethod
-    def from_incheon(
+    async def from_incheon(
             cls,
             payload: Dict[str, Any],
             client=None
@@ -85,7 +85,7 @@ class BusStationAround(BusStation):
             pos_y = float(pos_y)
         station_id = int(payload['BSTOPID'])
         try:
-            station_info: BusStation = client.get_station_id(station_id=station_id)
+            station_info: BusStation = await client.get_station_id(station_id=station_id)
         except (EmptyData, AttributeError):
             station_id2 = None
             center = None

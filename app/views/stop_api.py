@@ -1,3 +1,4 @@
+import asyncio
 from typing import NamedTuple
 
 from flask import Blueprint
@@ -68,7 +69,7 @@ client = ClientList(
 
 
 @bp.route("/station", methods=['GET'])
-def station_info():
+async def station_info():
     args = req.args
     if "name" not in args:
         return make_response(
@@ -82,37 +83,37 @@ def station_info():
     city_code = args.get('cityCode', default="1")
     if city_code == "11":
         try:
-            result = client.seoul.get_station(name=station_name)
+            result = await client.seoul.get_station(name=station_name)
         except bus_api.EmptyData:
             result = []
     elif city_code == "12":
         try:
-            result = client.gyeonggi.get_station(name=station_name)
+            result = await client.gyeonggi.get_station(name=station_name)
         except bus_api.EmptyData:
             result = []
     elif city_code == "13":
         try:
-            result = client.incheon.get_station(name=station_name)
+            result = await client.incheon.get_station(name=station_name)
         except bus_api.EmptyData:
             result = []
     elif city_code == "21":
         try:
-            result = client.busan.get_station(name=station_name)
+            result = await client.busan.get_station(name=station_name)
         except bus_api.EmptyData:
             result = []
     elif city_code == "22":
         try:
-            result = client.ulsan.get_station(name=station_name)
+            result = await client.ulsan.get_station(name=station_name)
         except bus_api.EmptyData:
             result = []
     elif city_code == "24":
         try:
-            result = client.changwon.get_station(name=station_name)
+            result = await client.changwon.get_station(name=station_name)
         except bus_api.EmptyData:
             result = []
     elif city_code == "25":
         try:
-            result = client.gimhae.get_station(name=station_name)
+            result = await client.gimhae.get_station(name=station_name)
         except bus_api.EmptyData:
             result = []
     elif city_code == "1":
@@ -120,7 +121,7 @@ def station_info():
         _list_ids = []
         for _client in [client.seoul, client.gyeonggi, client.incheon]:
             try:
-                client_result = _client.get_station(name=station_name)
+                client_result = await _client.get_station(name=station_name)
             except bus_api.EmptyData:
                 continue
 
@@ -139,7 +140,10 @@ def station_info():
 
         for _client in matched_client:
             try:
-                _result = _client.get_station(name=station_name)
+                if asyncio.iscoroutinefunction(_client.get_station):
+                    _result = await _client.get_station(name=station_name)
+                else:
+                    _result = _client.get_station(name=station_name)
             except bus_api.EmptyData:
                 continue
 
@@ -168,7 +172,7 @@ def station_info():
 
 
 @bp.route("/station/around", methods=['GET'])
-def station_info_around():
+async def station_info_around():
     args = req.args
     if "posX" not in args or "posY" not in args:
         return make_response(
@@ -236,9 +240,14 @@ def station_info_around():
         for client_name in matched_client:
             _client = getattr(client, client_name)
             try:
-                client_result = _client.get_station_around(
-                    pos_x=pos_x, pos_y=pos_y
-                )
+                if asyncio.iscoroutinefunction(_client.get_station_around):
+                    client_result = await _client.get_station_around(
+                        pos_x=pos_x, pos_y=pos_y
+                    )
+                else:
+                    client_result = _client.get_station_around(
+                        pos_x=pos_x, pos_y=pos_y
+                    )
             except bus_api.EmptyData:
                 continue
 
@@ -260,11 +269,11 @@ def station_info_around():
         if not metropolitan:
             result = conversion_others(pre_result, ["BUSAN", "ULSAN", "CHANGWON", 38070])
     elif city_code == "11":
-        result = client.seoul.get_station_around(pos_x=pos_x, pos_y=pos_y)
+        result = await client.seoul.get_station_around(pos_x=pos_x, pos_y=pos_y)
     elif city_code == "12":
-        result = client.gyeonggi.get_station_around(pos_x=pos_x, pos_y=pos_y)
+        result = await client.gyeonggi.get_station_around(pos_x=pos_x, pos_y=pos_y)
     elif city_code == "13":
-        result = client.incheon.get_station_around(pos_x=pos_x, pos_y=pos_y)
+        result = await client.incheon.get_station_around(pos_x=pos_x, pos_y=pos_y)
     else:
         return make_response(
             jsonify({
@@ -281,7 +290,7 @@ def station_info_around():
 
 
 @bp.route("/route", methods=['GET'])
-def arrival_info():
+async def arrival_info():
     args = req.args
     if "id" not in args:
         return make_response(
@@ -307,7 +316,7 @@ def arrival_info():
     override = []
     if city_code == 11:
         try:
-            _result = client.seoul.get_arrival(station_id=station_id)
+            _result = await client.seoul.get_arrival(station_id=station_id)
         except bus_api.EmptyData:
             return jsonify([])
         _station_ids = _result[0].station.id1
@@ -322,12 +331,12 @@ def arrival_info():
                 override.append(client.incheon)
 
         if client.gyeonggi in override:
-            result = get_gyeonggi(client, _station_ids, result, version=version)
+            result = await get_gyeonggi(client, _station_ids, result, version=version)
         if client.incheon in override:
-            result = get_incheon(client, _station_ids, result, version=version)
+            result = await get_incheon(client, _station_ids, result, version=version)
     elif city_code == 12 or city_code == 13:
-        result = get_gyeonggi(client, station_id, version=version)
-        result = get_incheon(client, station_id, result, version)
+        result = await get_gyeonggi(client, station_id, version=version)
+        result = await get_incheon(client, station_id, result, version)
     elif 200 < city_code < 264:
         city_key = ['busan', 'ulsan', 'changwon', 'gimhae']
         bus_type_dictionary = {
@@ -350,20 +359,26 @@ def arrival_info():
         client_by_station_id.reverse()
         for _client, _station_id, city_id in client_by_station_id:
             try:
-                _result = _client.get_arrival(_station_id)
+                if asyncio.iscoroutinefunction(_client.get_arrival):
+                    _result = await _client.get_arrival(_station_id)
+                else:
+                    _result = _client.get_arrival(_station_id)
             except bus_api.EmptyData:
                 _result = []
 
             if city_id not in ["busan", "changwon", "ulsan"]:
                 index = city_key.index(city_id)
                 try:
-                    route_data = _client.get_route(_station_id, bus_type_dictionary[city_id])
+                    if asyncio.iscoroutinefunction(_client.get_arrival):
+                        route_data = await _client.get_route(_station_id, bus_type_dictionary[city_id])
+                    else:
+                        route_data = _client.get_route(_station_id, bus_type_dictionary[city_id])
                 except bus_api.EmptyData:
                     continue
                 result += get_korea(_result, route_data, prefix_route[index])
                 continue
             elif city_id == "ulsan":
-                route_data = _client.get_route(_station_id)
+                route_data = await _client.get_route(_station_id)
                 result += get_ulsan(_result, route_data)
                 continue
 

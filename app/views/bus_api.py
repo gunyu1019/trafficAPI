@@ -48,7 +48,7 @@ client = ClientList(
 
 
 @bp.route("/search", methods=['GET'])
-def bus_info():
+async def bus_info():
     args = req.args
     if "name" not in args:
         return make_response(
@@ -64,14 +64,14 @@ def bus_info():
     if city_code == "1":
         _list_ids = []
         try:
-            _result = client.seoul.get_bus(name=bus_name)
+            _result = await client.seoul.get_bus(name=bus_name)
             result = [bus for bus in _result if bus.type != "1107" and bus.type != "1108"]
         except bus_api.EmptyData:
             pass
 
         for _client in [client.gyeonggi, client.incheon]:
             try:
-                result += _client.get_bus(name=bus_name)
+                result += await _client.get_bus(name=bus_name)
             except bus_api.EmptyData:
                 pass
     else:
@@ -88,7 +88,7 @@ def bus_info():
 
 
 @bp.route("/detail", methods=['GET'])
-def bus_info_detail():
+async def bus_info_detail():
     args = req.args
     if "id" not in args:
         return make_response(
@@ -102,11 +102,11 @@ def bus_info_detail():
     city_code = args.get('cityCode', default="1")
     try:
         if city_code == "11":
-            result = client.seoul.get_bus_detail(bus_id=bus_id)
+            result = await client.seoul.get_bus_detail(bus_id=bus_id)
         elif city_code == "12":
-            result = client.gyeonggi.get_bus_detail(bus_id=bus_id)
+            result = await client.gyeonggi.get_bus_detail(bus_id=bus_id)
         elif city_code == "13":
-            result = client.incheon.get_bus_detail(bus_id=bus_id)
+            result = await client.incheon.get_bus_detail(bus_id=bus_id)
         else:
             return make_response(
                 jsonify({
@@ -121,7 +121,7 @@ def bus_info_detail():
 
 
 @bp.route("/busRoute", methods=['GET'])
-def bus_route():
+async def bus_route():
     args = req.args
     if "id" not in args:
         return make_response(
@@ -135,11 +135,11 @@ def bus_route():
     city_code = args.get('cityCode', default="1")
     try:
         if city_code == "11":
-            result = client.seoul.get_bus_route(bus_id=bus_id)
+            result = await client.seoul.get_bus_route(bus_id=bus_id)
         elif city_code == "12":
-            result = client.gyeonggi.get_bus_route(bus_id=bus_id)
+            result = await client.gyeonggi.get_bus_route(bus_id=bus_id)
         elif city_code == "13":
-            result = client.incheon.get_bus_route(bus_id=bus_id)
+            result = await client.incheon.get_bus_route(bus_id=bus_id)
         else:
             return make_response(
                 jsonify({
@@ -156,7 +156,7 @@ def bus_route():
 
 
 @bp.route("/location", methods=['GET'])
-def bus_location():
+async def bus_location():
     args = req.args
     if "id" not in args:
         return make_response(
@@ -170,11 +170,11 @@ def bus_location():
     city_code = args.get('cityCode', default="1")
     try:
         if city_code == "11":
-            result = client.seoul.get_bus_location(bus_id=bus_id)
+            result = await client.seoul.get_bus_location(bus_id=bus_id)
         elif city_code == "12":
-            result = client.gyeonggi.get_bus_location(bus_id=bus_id)
+            result = await client.gyeonggi.get_bus_location(bus_id=bus_id)
         elif city_code == "13":
-            result = client.incheon.get_bus_location(bus_id=bus_id)
+            result = await client.incheon.get_bus_location(bus_id=bus_id)
         else:
             return make_response(
                 jsonify({

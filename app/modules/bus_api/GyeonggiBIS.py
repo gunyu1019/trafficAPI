@@ -25,14 +25,14 @@ class GyeonggiBIS(BaseClient):
         self.bus_token = bus_token
         self.location_token = location_token or bus_token
 
-    def request(self, token: str, **kwargs):
+    async def request(self, token: str, **kwargs):
         params = {
             'serviceKey': token
         }
-        return super(GyeonggiBIS, self).request(_default_params=params, _default_xml=True, **kwargs)
+        return await super(GyeonggiBIS, self).request(_default_params=params, _default_xml=True, **kwargs)
 
-    def get_station(self, name: str):
-        data = self.get(
+    async def get_station(self, name: str):
+        data = await self.get(
             path="/6410000/busstationservice/getBusStationList",
             params={
                 "keyword": name
@@ -50,12 +50,12 @@ class GyeonggiBIS(BaseClient):
         item_list = body['busStationList']
         return [BusStation.from_gyeonggi(x) for x in get_list_from_ordered_dict(item_list)]
 
-    def get_station_around(
+    async def get_station_around(
             self,
             pos_x: float,
             pos_y: float
     ):
-        data = self.get(
+        data = await self.get(
             path="/6410000/busstationservice/getBusStationAroundList",
             params={
                 "x": pos_x,
@@ -74,8 +74,8 @@ class GyeonggiBIS(BaseClient):
         item_list = body['busStationAroundList']
         return [BusStationAround.from_gyeonggi(x) for x in get_list_from_ordered_dict(item_list)]
 
-    def get_route(self, station_id: str):
-        data = self.get(
+    async def get_route(self, station_id: str):
+        data = await self.get(
             path="/6410000/busstationservice/getBusStationViaRouteList",
             params={
                 "stationId": station_id
@@ -93,8 +93,8 @@ class GyeonggiBIS(BaseClient):
         item_list = body['busRouteList']
         return [BusRoute.from_gyeonggi(x) for x in get_list_from_ordered_dict(item_list)]
 
-    def get_arrival(self, station_id: str):
-        data = self.get(
+    async def get_arrival(self, station_id: str):
+        data = await self.get(
             path="/6410000/busarrivalservice/getBusArrivalList",
             params={
                 "stationId": station_id
@@ -112,8 +112,8 @@ class GyeonggiBIS(BaseClient):
         item_list = body['busArrivalList']
         return [GyeonggiBusArrival(x) for x in get_list_from_ordered_dict(item_list)]
 
-    def get_bus(self, name: str):
-        data = self.get(
+    async def get_bus(self, name: str):
+        data = await self.get(
             path="/6410000/busrouteservice/getBusRouteList",
             params={
                 "keyword": name
@@ -131,8 +131,8 @@ class GyeonggiBIS(BaseClient):
         item_list = body['busRouteList']
         return [BusInfo.from_gyeonggi(x) for x in get_list_from_ordered_dict(item_list)]
 
-    def get_bus_detail(self, bus_id: str):
-        data = self.get(
+    async def get_bus_detail(self, bus_id: str):
+        data = await self.get(
             path="/6410000/busrouteservice/getBusRouteInfoItem",
             params={
                 "routeId": bus_id
@@ -150,8 +150,8 @@ class GyeonggiBIS(BaseClient):
         item_list = body['busRouteInfoItem']
         return BusInfoDetails.from_gyeonggi(item_list)
 
-    def get_bus_route(self, bus_id: str):
-        data = self.get(
+    async def get_bus_route(self, bus_id: str):
+        data = await self.get(
             path="/6410000/busrouteservice/getBusRouteStationList",
             params={
                 "routeId": bus_id
@@ -179,8 +179,8 @@ class GyeonggiBIS(BaseClient):
             )
         return result
 
-    def get_bus_location(self, bus_id: str):
-        data = self.get(
+    async def get_bus_location(self, bus_id: str):
+        data = await self.get(
             path="/6410000/buslocationservice/getBusLocationList",
             params={
                 "routeId": bus_id

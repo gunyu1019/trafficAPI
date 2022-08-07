@@ -35,11 +35,11 @@ class BusanBIS(BaseClient):
             })
         return pandas.DataFrame(rows, columns=['bstopid', 'bstopnm', 'arsno', 'gpsx', 'gpsy'])
 
-    def request(self, **kwargs):
+    async def request(self, **kwargs):
         params = {
             'serviceKey': self.token
         }
-        return super(BusanBIS, self).request(_default_params=params, _default_xml=True, **kwargs)
+        return await super(BusanBIS, self).request(_default_params=params, _default_xml=True, **kwargs)
 
     # def get_station(self, name: str):
     #     data = self.get(
@@ -80,8 +80,8 @@ class BusanBIS(BaseClient):
                 )
         return result
 
-    def get_arrival(self, station_id: int):
-        data = self.get(
+    async def get_arrival(self, station_id: int):
+        data = await self.get(
             path="/6260000/BusanBIMS/stopArrByBstopid",
             params={
                 "bstopid": station_id
@@ -98,8 +98,8 @@ class BusanBIS(BaseClient):
         item_list = body['item']
         return [BusanBusArrival(x) for x in get_list_from_ordered_dict(item_list)]
 
-    def update_station(self):
-        data = self.get(
+    async def update_station(self):
+        data = await self.get(
             path="/6260000/BusanBIMS/busStopList",
             params={
                 "pageNo": 1,

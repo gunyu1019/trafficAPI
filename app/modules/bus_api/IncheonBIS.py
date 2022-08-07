@@ -25,19 +25,19 @@ class IncheonBIS(BaseClient):
         self.bus_token = bus_token
         self.location_token = location_token or bus_token
 
-    def request(self, token: str, **kwargs):
+    async def request(self, token: str, **kwargs):
         params = {
             'serviceKey': token
         }
-        return super(IncheonBIS, self).request(_default_params=params, _default_xml=True, **kwargs)
+        return await super(IncheonBIS, self).request(_default_params=params, _default_xml=True, **kwargs)
 
-    def get_station(
+    async def get_station(
             self,
             name: str,
             rows: int = 10,
             page: int = 1
     ):
-        data = self.get(
+        data = await self.get(
             path="/6280000/busStationService/getBusStationNmList",
             params={
                 "bstopNm": name,
@@ -56,14 +56,14 @@ class IncheonBIS(BaseClient):
         item_list = body['itemList']
         return [BusStation.from_incheon(x) for x in get_list_from_ordered_dict(item_list)]
 
-    def get_station_around(
+    async def get_station_around(
             self,
             pos_x: float,
             pos_y: float,
             rows: int = 10,
             page: int = 1
     ):
-        data = self.get(
+        data = await self.get(
             path="/6280000/busStationService/getBusStationAroundList",
             params={
                 "LAT": pos_x,
@@ -81,15 +81,15 @@ class IncheonBIS(BaseClient):
         if body is None:
             raise EmptyData()
         item_list = body['itemList']
-        return [BusStationAround.from_incheon(x, self) for x in get_list_from_ordered_dict(item_list)]
+        return [await BusStationAround.from_incheon(x, self) for x in get_list_from_ordered_dict(item_list)]
 
-    def get_station_id(
+    async def get_station_id(
             self,
             station_id: int,
             rows: int = 10,
             page: int = 1
     ):
-        data = self.get(
+        data = await self.get(
             path="/6280000/busStationService/getBusStationIdList",
             params={
                 "bstopId": station_id,
@@ -108,13 +108,13 @@ class IncheonBIS(BaseClient):
         item_list = body['itemList']
         return [BusStation.from_incheon(x) for x in get_list_from_ordered_dict(item_list)]
 
-    def get_route(
+    async def get_route(
             self,
             station_id: str,
             rows: int = 10,
             page: int = 1
     ):
-        data = self.get(
+        data = await self.get(
             path="/6280000/busStationService/getBusStationViaRouteList",
             params={
                 "bstopId": station_id,
@@ -133,13 +133,13 @@ class IncheonBIS(BaseClient):
         item_list = body['itemList']
         return [BusRoute.from_incheon(x) for x in get_list_from_ordered_dict(item_list)]
 
-    def get_arrival(
+    async def get_arrival(
             self,
             station_id: str,
             rows: int = 100,
             page: int = 1
     ):
-        data = self.get(
+        data = await self.get(
             path="/6280000/busArrivalService/getAllRouteBusArrivalList",
             params={
                 "bstopId": station_id,
@@ -158,13 +158,13 @@ class IncheonBIS(BaseClient):
         item_list = body['itemList']
         return [IncheonBusArrival(x) for x in get_list_from_ordered_dict(item_list)]
 
-    def get_bus(
+    async def get_bus(
             self,
             name: str,
             rows: int = 100,
             page: int = 1
     ):
-        data = self.get(
+        data = await self.get(
             path="/6280000/busRouteService/getBusRouteNo",
             params={
                 "routeNo": name,
@@ -183,13 +183,13 @@ class IncheonBIS(BaseClient):
         item_list = body['itemList']
         return [BusInfo.from_incheon(x) for x in get_list_from_ordered_dict(item_list)]
 
-    def get_bus_detail(
+    async def get_bus_detail(
             self,
             bus_id: str,
             rows: int = 100,
             page: int = 1
     ):
-        data = self.get(
+        data = await self.get(
             path="/6280000/busRouteService/getBusRouteId",
             params={
                 "routeId": bus_id,
@@ -208,13 +208,13 @@ class IncheonBIS(BaseClient):
         item_list = body['itemList']
         return BusInfoDetails.from_incheon(item_list)
 
-    def get_bus_route(
+    async def get_bus_route(
             self,
             bus_id: str,
             rows: int = 100,
             page: int = 1
     ):
-        data = self.get(
+        data = await self.get(
             path="/6280000/busRouteService/getBusRouteSectionList",
             params={
                 "routeId": bus_id,
@@ -246,13 +246,13 @@ class IncheonBIS(BaseClient):
             )
         return result
 
-    def get_bus_location(
+    async def get_bus_location(
             self,
             bus_id: str,
             rows: int = 100,
             page: int = 1
     ):
-        data = self.get(
+        data = await self.get(
             path="/6280000/busLocationService/getBusRouteLocation",
             params={
                 "routeId": bus_id,

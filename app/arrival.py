@@ -9,7 +9,7 @@ from app.modules.bus_api.models.ChangwonArrival import ChangwonBusArrival
 from app.modules.bus_api.models.UlsanArrival import UlsanBusArrival
 
 
-def get_gyeonggi(client, station_id: str, result: list = None, version: str = 'v1'):
+async def get_gyeonggi(client, station_id: str, result: list = None, version: str = 'v1'):
     if result is None:
         result = []
     added_bus_id = []
@@ -17,13 +17,13 @@ def get_gyeonggi(client, station_id: str, result: list = None, version: str = 'v
         added_bus_id.append(bus.id)
     data = {}
     try:
-        route_data = client.gyeonggi.get_route(station_id=station_id)
+        route_data = await client.gyeonggi.get_route(station_id=station_id)
     except bus_api.EmptyData:
         return result
 
     arrival_data = []
     try:
-        arrival_data = client.gyeonggi.get_arrival(station_id=station_id)
+        arrival_data = await client.gyeonggi.get_arrival(station_id=station_id)
     except bus_api.EmptyData:
         pass
 
@@ -45,7 +45,7 @@ def get_gyeonggi(client, station_id: str, result: list = None, version: str = 'v
     return result
 
 
-def get_incheon(client, station_id: str, result: list = None, version: str = 'v1'):
+async def get_incheon(client, station_id: str, result: list = None, version: str = 'v1'):
     if result is None:
         result = []
     added_bus_id = []
@@ -54,13 +54,13 @@ def get_incheon(client, station_id: str, result: list = None, version: str = 'v1
 
     data = {}
     try:
-        route_data = client.incheon.get_route(station_id=station_id)
+        route_data = await client.incheon.get_route(station_id=station_id)
     except bus_api.EmptyData:
         return result
 
     arrival_data = []
     try:
-        arrival_data = client.incheon.get_arrival(station_id=station_id)
+        arrival_data = await client.incheon.get_arrival(station_id=station_id)
     except bus_api.EmptyData:
         pass
     for route in route_data:

@@ -32,11 +32,11 @@ class UlsanBIS(BaseClient):
         ) as fp:
             self._bus_data = xmltodict.parse(fp.read())
 
-    def request(self, **kwargs):
+    async def request(self, **kwargs):
         params = {
             'serviceKey': self.token
         }
-        return super(UlsanBIS, self).request(_default_params=params, _default_xml=True, **kwargs)
+        return await super(UlsanBIS, self).request(_default_params=params, _default_xml=True, **kwargs)
 
     def get_station_data(self):
         rows = []
@@ -88,8 +88,8 @@ class UlsanBIS(BaseClient):
                 )
         return result
 
-    def get_route(self, station_id: int):
-        bus_ids = [str(x.id).lstrip("USB") for x in self.korea_client.get_route(
+    async def get_route(self, station_id: int):
+        bus_ids = [str(x.id).lstrip("USB") for x in await self.korea_client.get_route(
             "USB{}".format(station_id)
         )]
         result = []
@@ -98,8 +98,8 @@ class UlsanBIS(BaseClient):
             result += bus_data[bus_data['id'] == bus_id].to_dict("records")
         return [BusRoute.from_ulsan(x) for x in result]
 
-    def update_station(self):
-        data = self.get(
+    async def update_station(self):
+        data = await self.get(
             path="/UlsanAPI/BusStopInfo.xo",
             params={
                 "pageNo": 1,
@@ -112,8 +112,8 @@ class UlsanBIS(BaseClient):
         ) as file:
             file.write(data)
 
-    def update_bus_info(self):
-        data = self.get(
+    async def update_bus_info(self):
+        data = await self.get(
             path="/UlsanAPI/RouteInfo.xo",
             params={
                 "pageNo": 1,
@@ -126,8 +126,8 @@ class UlsanBIS(BaseClient):
         ) as file:
             file.write(data)
 
-    def get_arrival(self, station_id: int):
-        data = self.get(
+    async def get_arrival(self, station_id: int):
+        data = await self.get(
             path="/UlsanAPI/getBusArrivalInfo.xo",
             params={
                 "stopid": station_id,

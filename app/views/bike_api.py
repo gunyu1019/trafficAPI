@@ -28,7 +28,7 @@ class BikeData(NamedTuple):
     datetime: datetime
 
 
-def load_bike_data() -> BikeData:
+async def load_bike_data() -> BikeData:
     with open(os.path.join(directory, "data", "bike_data.json"), "r", encoding='utf8') as fp:
         pre_data = json.load(fp)
     data = [RideBike.from_dict(x) for x in pre_data['data']]
@@ -37,7 +37,7 @@ def load_bike_data() -> BikeData:
         index = 0
         post_data = []
         while True:
-            _data = client.bike_list(index * 1000 + 1, index * 1000 + 1000)
+            _data = await client.bike_list(index * 1000 + 1, index * 1000 + 1000)
             post_data += _data
             if len(_data) < 900:
                 break
@@ -56,7 +56,7 @@ def load_bike_data() -> BikeData:
 
 
 @bp.route('/query', methods=['GET'])
-def query_bike_info():
+async def query_bike_info():
     args = req.args
     if "name" not in args:
         return make_response(
@@ -67,7 +67,7 @@ def query_bike_info():
             400
         )
     bike_name = args.get('name')
-    data = load_bike_data()
+    data = await load_bike_data()
     return jsonify({
         "data": [station.to_dict() for station in data.data if bike_name in station.name],
         "lastUpdate": data.datetime.timestamp()
@@ -75,7 +75,7 @@ def query_bike_info():
 
 
 @bp.route('/around', methods=['GET'])
-def around_bike_info():
+async def around_bike_info():
     args = req.args
     if "posX" not in args or "posY" not in args:
         return make_response(
@@ -88,7 +88,7 @@ def around_bike_info():
     distance = args.get('distance', type=int, default=500)
     pos_x = args.get('posX', type=float)
     pos_y = args.get('posY', type=float)
-    data = load_bike_data()
+    data = await load_bike_data()
 
     return jsonify({
         "data": sorted(

@@ -16,14 +16,14 @@ class KoreaBIS(BaseClient):
         self.arrival_token = arrival_token or token
         self.city_code = city_code
 
-    def request(self, arrival_token: bool = False, **kwargs):
+    async def request(self, arrival_token: bool = False, **kwargs):
         params = {
             'serviceKey': self.token if not arrival_token else self.arrival_token
         }
-        return super(KoreaBIS, self).request(_default_params=params, _default_xml=False, **kwargs)
+        return await super(KoreaBIS, self).request(_default_params=params, _default_xml=False, **kwargs)
 
-    def get_station(self, name: str):
-        data = self.get(
+    async def get_station(self, name: str):
+        data = await self.get(
             path="/1613000/BusSttnInfoInqireService/getSttnNoList",
             params={
                 "pageNo": 1,
@@ -44,10 +44,10 @@ class KoreaBIS(BaseClient):
         item_list = body['item']
         return [BusStation.from_korea(x, self.city_code) for x in get_list_from_ordered_dict(item_list)]
 
-    def get_route(self, station_id: str, bus_type: Dict[str, int] = None):
+    async def get_route(self, station_id: str, bus_type: Dict[str, int] = None):
         if bus_type is None:
             bus_type = {}
-        data = self.get(
+        data = await self.get(
             path="/1613000/BusSttnInfoInqireService/getSttnThrghRouteList",
             params={
                 "pageNo": 1,
@@ -68,12 +68,12 @@ class KoreaBIS(BaseClient):
         item_list = body['item']
         return [BusRoute.from_korea(r, bus_type) for r in get_list_from_ordered_dict(item_list)]
 
-    def get_station_around(
+    async def get_station_around(
             self,
             pos_x: float,
             pos_y: float
     ):
-        data = self.get(
+        data = await self.get(
             path="/1613000/BusSttnInfoInqireService/getCrdntPrxmtSttnList",
             params={
                 "pageNo": 1,
@@ -101,8 +101,8 @@ class KoreaBIS(BaseClient):
             )
         return result
 
-    def get_arrival(self, station_id: int):
-        data = self.get(
+    async def get_arrival(self, station_id: int):
+        data = await self.get(
             path="/1613000/ArvlInfoInqireService/getSttnAcctoArvlPrearngeInfoList",
             params={
                 "pageNo": 1,

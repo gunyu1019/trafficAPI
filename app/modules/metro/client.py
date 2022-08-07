@@ -9,16 +9,16 @@ class Client(BaseClient):
         super().__init__("http://openapi.seoul.go.kr:8088")
         self.token = token
 
-    def request(self, method: str, path: str, **kwargs):
-        return super().request(method=method, path=path, _default_xml=False, **kwargs)
+    async def request(self, method: str, path: str, **kwargs):
+        return await super().request(method=method, path=path, _default_xml=False, **kwargs)
 
-    def query(
+    async def query(
             self,
             name: str,
             start_index: int,
             end_index: int
     ):
-        data = self.request(
+        data = await self.request(
             'GET',
             '/{0}/json/SearchInfoBySubwayNameService/{1}/{2}/{3}'.format(
                 self.token, start_index, end_index, name
@@ -29,7 +29,7 @@ class Client(BaseClient):
         result = data['SearchInfoBySubwayNameService']
         return [Station.from_payload(x) for x in result.get("row", [])]
 
-    def timetable(
+    async def timetable(
             self,
             station_id: str,
             direction: int,
@@ -37,7 +37,7 @@ class Client(BaseClient):
             start_index: int,
             end_index: int
     ):
-        data = self.request(
+        data = await self.request(
             'GET',
             '/{0}/json/SearchLastTrainTimeByIDService/{1}/{2}/{3}/{4}/{5}'.format(
                 self.token, start_index, end_index, station_id, time_type, direction

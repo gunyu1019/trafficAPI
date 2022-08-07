@@ -8,16 +8,16 @@ class Arrival(BaseClient):
         super().__init__("http://swopenapi.seoul.go.kr")
         self.token = token
 
-    def request(self, method: str, path: str, **kwargs):
-        return super().request(method=method, path=path, _default_xml=False, **kwargs)
+    async def request(self, method: str, path: str, **kwargs):
+        return await super().request(method=method, path=path, _default_xml=False, **kwargs)
 
-    def arrival_info(
+    async def arrival_info(
             self,
             name: str,
             start_index: int,
             end_index: int
     ):
-        data = self.request(
+        data = await self.request(
             'GET',
             '/api/subway/{0}/json/realtimeStationArrival/{1}/{2}/{3}'.format(
                 self.token, start_index, end_index, name
