@@ -1,10 +1,7 @@
-<h1 align="center">Traffic API</h1>
-<p align="center">
-  수도권 교통 정보를 보다 쉽게 조회할 수 있는 API 입니다.
-</p>
+# Traffic API
+대중교통 정보를 보다 쉽게 조회할 수 있는 API 입니다.
 
-# Introduce
-수도권 대중교통 정보를 제공합니다.
+대한민국 대중교통 정보를 제공합니다.
 * 버스 정류장 정보
 * 버스 실시간 도착 정보
 * 수도권 지하철 역사 정보
@@ -12,14 +9,14 @@
 * 수도권 지하철 시간표 정보
 * 서울특별시 실시간 대여자전거 정보
 
-# Documentation
+## Documentation
 아래 링크를 클릭하여 본 API의 사용 방법을 알아보세요!
 * [한국어 문서](docs/)
   * [수도권 버스 정류소/버스 도착 정보](docs/bus.md)
   * [수도권 전철 역사/전철 도착 정보](docs/metro.md)
   * [서울특별시 대여자전거 정보](docs/bike.md)
 
-# Source
+## Source
 각 대중교통 정보의 출처는 다음과 같습니다.<br/>
 일부 정보는 TrafficAPI에 알맞게 수정된 데이터도 일부 있습니다.
 
